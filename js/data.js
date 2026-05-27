@@ -157,7 +157,7 @@ const PROBLEMS_DB = {
       categoryLabel: '深層学習',
       difficulty: 3,
       language: 'python',
-      description: '勾配降下法を使ってニューラルネットワークのパラメータを更新せよ。損失関数の勾配（dW, db）と学習率（lr）を用いて重み W とバイアス b を更新する。',
+      description: '勾配降下法を使ってニューラルネットワークのパラメータを更新せよ。\n\n以下の独自関数がすでに実装済みとして使用できる:\n・forward_pass(X, W1, b1, W2, b2) → (A2, cache): 順伝播を実行し出力と中間値キャッシュを返す\n・compute_loss(A2, y) → loss: 予測値A2と正解ラベルyから損失値（誤差）を計算する\n・backward_pass(A2, y, cache) → grads: 逆伝播で各パラメータの勾配辞書{"dW1","db1","dW2","db2"}を返す\n\nこれらを使って、gradient_descent関数と1ステップ分の学習処理train_stepを実装せよ。',
       blocks: [
         { id: 0, code: 'def gradient_descent(W, b, dW, db, lr):' },
         { id: 1, code: '    W = W - lr * dW' },
@@ -246,7 +246,7 @@ const DataManager = (() => {
   }
 
   // 難易度で絞り込み（ランダムモード用：randomEligible のものだけ）
-  function getProblemsByDifficultyForRandom(difficulty) {
+  function getProblemsByDifficulty(difficulty) {
     return getRandomEligibleProblems().filter((p) => p.difficulty === difficulty);
   }
 
@@ -257,7 +257,7 @@ const DataManager = (() => {
 
   // 難易度を指定してランダムに1問取得（randomEligible のみ）
   function getRandomProblemByDifficulty(difficulty) {
-    const pool = getProblemsByDifficultyForRandom(difficulty);
+    const pool = getProblemsByDifficulty(difficulty);
     if (pool.length === 0) return null;
     return pool[Math.floor(Math.random() * pool.length)];
   }
@@ -295,7 +295,7 @@ const DataManager = (() => {
     getAllProblems,
     getRandomEligibleProblems,
     getProblemsByCategory,
-    getProblemsByDifficultyForRandom,
+    getProblemsByDifficulty,
     getProblemById,
     getRandomProblem,
     getRandomProblemByDifficulty,

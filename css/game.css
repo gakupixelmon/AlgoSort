@@ -446,7 +446,8 @@
   border: 1px solid rgba(124,58,237,0.4);
   border-left: 4px solid var(--accent-purple);
   border-radius: var(--radius-lg);
-  padding: var(--space-md) var(--space-lg);
+  padding: var(--space-sm) var(--space-md);
+  flex-shrink: 0; /* 問題文エリアは縮まないよう固定 */
 }
 
 .problem-statement-label {
@@ -455,25 +456,28 @@
   color: var(--accent-purple);
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  margin-bottom: var(--space-sm);
+  margin-bottom: 4px;
 }
 
 .problem-statement-text {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--text-primary);
-  line-height: 1.7;
+  line-height: 1.6;
+  max-height: 80px;
+  overflow-y: auto;
+  white-space: pre-wrap; /* \n を改行として表示 */
 }
 
-/* ゲームボディ：内側の各ゾーンが独立してスクロールするため overflow: hidden */
+/* ゲームボディ：overflow:hiddenで全体スクロールを抑止し flex で高さを制御 */
 .game-body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: var(--space-md);
-  gap: var(--space-md);
-  overflow: hidden;    /* 外側スクロールを無効化 */
-  min-height: 0;       /* flex子で縮小を許可 */
+  padding: var(--space-sm) var(--space-md);
+  gap: var(--space-sm);
+  overflow: hidden;
+  min-height: 0;
 }
 
 /* 正解エリア */
@@ -490,25 +494,25 @@
 }
 
 .answer-section {
-  flex: 1 1 0;         /* 残りスペースを充填 */
+  flex: 3 1 0;         /* 答えエリアをより広く */
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  min-height: 110px;
+  min-height: 150px;
 }
 
 #answer-zone {
   flex: 1;
-  min-height: 80px;
+  min-height: 120px;
   background: rgba(124,58,237,0.05);
   border: 2px dashed rgba(124,58,237,0.3);
   border-radius: var(--radius-lg);
   padding: var(--space-sm);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   transition: var(--transition);
-  overflow-y: auto;    /* 答えエリア内部スクロール */
+  overflow-y: auto;
 }
 
 #answer-zone.drag-over {
@@ -529,25 +533,25 @@
   min-height: 60px;
 }
 
-/* 選択肢エリア：max-heightで上限し、内部スクロール */
+/* 選択肢エリア：flex: 2で答えより少し小さく、内部スクロール */
 .choices-section {
-  flex: 0 0 auto;
-  max-height: min(45vh, 280px);  /* 画面の半分超えず */
+  flex: 2 1 0;
   display: flex;
   flex-direction: column;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  min-height: 120px;
 }
 
 #choices-zone {
   flex: 1;
-  min-height: 60px;
+  min-height: 80px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  overflow-y: auto;    /* 選択肢エリア内部スクロール */
+  gap: 5px;
+  overflow-y: auto;
   padding: var(--space-sm);
   transition: var(--transition);
 }
