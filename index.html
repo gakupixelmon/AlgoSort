@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d1117" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>AlgoSort - コード並び替えパズル</title>
+  <meta name="description" content="競技プログラミングのコードを正しい順序に並び替えるパズルゲーム。アルゴリズムを楽しく学ぼう。" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/game.css" />
+</head>
+<body>
+
+  <!-- ========== ホーム画面 ========== -->
+  <div id="home" class="screen">
+    <div class="home-hero">
+      <div class="home-logo">
+        <div class="logo-icon">⚙️</div>
+        <span class="logo-text">AlgoSort</span>
+      </div>
+      <p class="home-tagline">コードを並び替えて、アルゴリズムをマスターしよう</p>
+    </div>
+
+    <!-- ストリークカード -->
+    <div class="streak-card">
+      <div class="streak-main">
+        <span class="streak-fire" id="streak-fire">🔥</span>
+        <div>
+          <div class="streak-number" id="streak-count">0</div>
+          <div class="streak-label">日連続<br>チャレンジ中</div>
+        </div>
+      </div>
+      <div class="streak-stats">
+        <div class="streak-stat">最高 <span id="max-streak">0</span> 日</div>
+        <div class="streak-stat">累計 <span id="total-solved">0</span> 問</div>
+      </div>
+    </div>
+
+    <!-- ボタン -->
+    <div class="home-buttons">
+      <button id="btn-random" class="btn btn-primary">
+        <span class="btn-random-icon">🎲</span>
+        ランダムに挑戦
+      </button>
+      <button id="btn-category" class="btn btn-secondary">
+        <span class="btn-category-icon">📚</span>
+        カテゴリから選ぶ
+      </button>
+    </div>
+  </div>
+
+  <!-- ========== 難易度選択画面（ランダムモード用） ========== -->
+  <div id="difficulty-select" class="screen">
+    <div class="app-container">
+      <div class="header">
+        <button id="difficulty-back" class="back-btn">←</button>
+        <h2 class="header-title">難易度を選ぶ</h2>
+      </div>
+      <p class="difficulty-subtitle">挑戦したい難易度を選択してください。その難易度の問題からランダムに出題されます。</p>
+      <div id="difficulty-grid"></div>
+    </div>
+  </div>
+
+  <!-- ========== カテゴリ選択画面 ========== -->
+  <div id="categories" class="screen">
+    <div class="app-container">
+      <div class="header">
+        <button id="categories-back" class="back-btn">←</button>
+        <h2 class="header-title">カテゴリ</h2>
+      </div>
+      <div id="category-grid"></div>
+    </div>
+  </div>
+
+  <!-- ========== ステージ選択画面 ========== -->
+  <div id="stages" class="screen">
+    <div class="app-container">
+      <div class="header">
+        <button id="stages-back" class="back-btn">←</button>
+        <h2 class="header-title" id="stages-title">ステージ選択</h2>
+      </div>
+      <div id="stage-list"></div>
+    </div>
+  </div>
+
+  <!-- ========== ゲーム画面 ========== -->
+  <div id="game" class="screen">
+
+    <!-- ゲームヘッダー（タイトル・バッジのみ） -->
+    <div class="game-header">
+      <button id="game-back" class="back-btn">←</button>
+      <div class="game-meta">
+        <div class="game-title-row">
+          <span id="game-title">タイトル</span>
+          <span class="difficulty-badge" id="game-difficulty">★☆☆☆☆</span>
+          <span class="lang-badge" id="game-lang">C++</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ゲームボディ -->
+    <div class="game-body">
+
+      <!-- 問題文カード（目立つように独立表示） -->
+      <div class="problem-statement-card">
+        <div class="problem-statement-label">📝 問題</div>
+        <p class="problem-statement-text" id="game-description">問題の説明</p>
+      </div>
+
+      <!-- 正解エリア -->
+      <div class="answer-section">
+        <div class="zone-label">📋 ここに並び替える</div>
+        <div id="answer-zone" class="drop-zone"></div>
+      </div>
+
+      <!-- 選択肢エリア -->
+      <div class="choices-section">
+        <div class="zone-label">🧩 コードブロック（ドラッグ / タップで移動）</div>
+        <div id="choices-zone" class="drop-zone"></div>
+      </div>
+
+    </div>
+
+    <!-- ゲームフッター -->
+    <div class="game-footer">
+      <div class="hint-area">
+        <button id="hint-btn">💡 ヒント (残り3)</button>
+        <div id="hint-text"></div>
+      </div>
+      <div class="game-actions">
+        <button id="check-btn">✓ 正解チェック</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========== 結果画面 ========== -->
+  <div id="result" class="screen">
+    <div class="result-container">
+
+      <!-- スコアリング -->
+      <div class="result-score-ring">
+        <div id="result-score">S</div>
+      </div>
+
+      <div id="result-streak">🔥 0 日連続</div>
+
+      <!-- 詳細 -->
+      <div class="result-info">
+        <div class="result-card">
+          <div id="result-title">問題タイトル</div>
+          <div id="result-message">メッセージ</div>
+          <div class="result-stats">
+            <div class="result-stat">
+              <div class="result-stat-value" id="result-hints">-</div>
+              <div class="result-stat-label">ヒント使用</div>
+            </div>
+            <div class="result-stat">
+              <div class="result-stat-value" id="result-time">-</div>
+              <div class="result-stat-label">クリアタイム</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ボタン -->
+      <div class="result-buttons">
+        <button id="result-retry" class="btn btn-secondary">🔄 もう一度</button>
+        <button id="result-next" class="btn btn-primary">▶ 次の問題</button>
+        <button id="result-home" class="btn btn-ghost">🏠 ホームへ</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- スクリプト（順序重要） -->
+  <script src="js/storage.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

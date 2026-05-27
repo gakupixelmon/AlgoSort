@@ -1,0 +1,24 @@
+{
+  "id": "basic_001",
+  "title": "バブルソート",
+  "category": "basic",
+  "categoryLabel": "基本アルゴリズム",
+  "difficulty": 1,
+  "language": "python",
+  "description": "隣接する要素を比較・交換することでリストを昇順に並べる「バブルソート」を実装せよ。",
+  "blocks": [
+    { "id": 0, "code": "def bubble_sort(arr):" },
+    { "id": 1, "code": "    n = len(arr)" },
+    { "id": 2, "code": "    for i in range(n - 1):" },
+    { "id": 3, "code": "        for j in range(n - 1 - i):" },
+    { "id": 4, "code": "            if arr[j] > arr[j + 1]:" },
+    { "id": 5, "code": "                arr[j], arr[j + 1] = arr[j + 1], arr[j]" },
+    { "id": 6, "code": "    return arr" }
+  ],
+  "correctOrder": [0, 1, 2, 3, 4, 5, 6],
+  "hints": [
+    "まず関数定義から始める（def bubble_sort(arr):）",
+    "外側のループでn-1回繰り返し、内側のループで比較範囲を i だけ狭めていく",
+    "隣接する arr[j] と arr[j+1] を比較し、大きい方を右に移動する"
+  ]
+}
