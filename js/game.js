@@ -1,7 +1,9 @@
 /**
  * game.js - ゲームエンジン
- * ドラッグ＆ドロップ（PC + スマホタッチ）・正解判定・ヒント管理
- * ※ブロック表示時はインデントを除去し、正解後に整形済みコードを表示
+ * ・ドラッグ＆ドロップ（PC + スマホタッチ）
+ * ・タップで即移動（ブロックをタップするだけで上下エリア間を移動）
+ * ・ピン留めブロック（import等、最初から配置済み・移動不可）
+ * ・正解後ソリューションモーダル（pinnedCodeも含む整形済みコード）
  */
 
 const GameEngine = (() => {
@@ -17,13 +19,20 @@ const GameEngine = (() => {
   let hintText = null;
   let checkBtn = null;
 
-  // タッチDnD用の状態
+  // タッチDnD用状態
   let draggingEl = null;
   let dragClone = null;
   let dragOffsetX = 0;
   let dragOffsetY = 0;
-  let dragSourceZone = null;
+  let touchStartTime = 0;
+  let touchStartX = 0;
+  let touchStartY = 0;
 
+  // PC DnD状態
+  let draggedEl = null;
+  let lastDragEndTime = 0;
+
+  // ======= 初期化 =======
   function init(problem, elements, onClear) {
     currentProblem = problem;
     hintsUsed = 0;
@@ -36,23 +45,30 @@ const GameEngine = (() => {
     hintText = elements.hintText;
     checkBtn = elements.checkBtn;
 
-    // エリアをクリア
     answerZone.innerHTML = '';
     choicesZone.innerHTML = '';
     if (hintText) hintText.textContent = '';
 
-    // シャッフルされたブロックを生成（インデントなし）
+    // ① ピン留めブロックを答えエリア上部に配置（固定・移動不可）
+    if (problem.pinnedCode && problem.pinnedCode.length > 0) {
+      problem.pinnedCode.forEach((code) => {
+        const el = createPinnedElement(code);
+        answerZone.appendChild(el);
+      });
+    }
+
+    // ② 並び替え対象のブロックをシャッフルして選択肢エリアへ
     const shuffled = DataManager.shuffleBlocks(problem.blocks);
     shuffled.forEach((block) => {
       const el = createBlockElement(block);
       choicesZone.appendChild(el);
     });
 
-    // ゾーンのDnDイベント設定
+    // ③ ゾーンのDnDイベント設定
     setupZoneEvents(answerZone);
     setupZoneEvents(choicesZone);
 
-    // ヒントボタン（重複登録防止のためcloneで付け替え）
+    // ④ ヒントボタン（重複登録防止）
     if (hintBtn) {
       const newBtn = hintBtn.cloneNode(true);
       hintBtn.parentNode.replaceChild(newBtn, hintBtn);
@@ -61,7 +77,7 @@ const GameEngine = (() => {
       updateHintButton();
     }
 
-    // 正解チェックボタン
+    // ⑤ 正解チェックボタン（重複登録防止）
     if (checkBtn) {
       const newBtn = checkBtn.cloneNode(true);
       checkBtn.parentNode.replaceChild(newBtn, checkBtn);
@@ -70,7 +86,25 @@ const GameEngine = (() => {
     }
   }
 
-  // ブロック要素を生成（インデントを除去して表示）
+  // ======= ピン留めブロック（固定表示・ドラッグ不可） =======
+  function createPinnedElement(code) {
+    const el = document.createElement('div');
+    el.className = 'code-block pinned';
+
+    const lockIcon = document.createElement('span');
+    lockIcon.className = 'pinned-lock-icon';
+    lockIcon.textContent = '📌';
+
+    const codeSpan = document.createElement('span');
+    codeSpan.className = 'block-code';
+    codeSpan.textContent = code;
+
+    el.appendChild(lockIcon);
+    el.appendChild(codeSpan);
+    return el;
+  }
+
+  // ======= 並び替えブロック（ドラッグ＆タップ対応） =======
   function createBlockElement(block) {
     const el = document.createElement('div');
     el.className = 'code-block';
@@ -79,18 +113,51 @@ const GameEngine = (() => {
 
     const codeSpan = document.createElement('span');
     codeSpan.className = 'block-code';
-    // インデント（先頭スペース・タブ）を除去して表示
-    codeSpan.textContent = block.code.trimStart();
-    el.appendChild(codeSpan);
+    codeSpan.textContent = block.code.trimStart(); // インデント除去して表示
 
-    // PC: drag events
+    // タップヒントアイコン
+    const tapIcon = document.createElement('span');
+    tapIcon.className = 'block-tap-icon';
+    tapIcon.textContent = '⇅';
+
+    el.appendChild(codeSpan);
+    el.appendChild(tapIcon);
+
+    // === PC: HTML5 DnD ===
     el.addEventListener('dragstart', onDragStart);
     el.addEventListener('dragend', onDragEnd);
 
-    // スマホ: touch events
+    // === PC: クリック（タップ移動） ===
+    // dragEnd後 100ms 以内のclickはドラッグ起因なのでスキップ
+    el.addEventListener('click', () => {
+      if (Date.now() - lastDragEndTime < 150) return;
+      handleBlockTap(el);
+    });
+
+    // === スマホ: タッチ ===
     el.addEventListener('touchstart', onTouchStart, { passive: false });
 
     return el;
+  }
+
+  // ======= タップで即移動 =======
+  function handleBlockTap(el) {
+    const zone = el.parentElement;
+    if (!zone) return;
+
+    if (zone === choicesZone) {
+      // 選択肢 → 答えエリアの末尾へ
+      answerZone.appendChild(el);
+    } else if (zone === answerZone) {
+      // 答えエリア → 選択肢エリアの末尾へ
+      choicesZone.appendChild(el);
+    }
+
+    // タップアニメーション
+    el.classList.add('tapped');
+    setTimeout(() => el.classList.remove('tapped'), 300);
+
+    triggerAutoCheck();
   }
 
   function setupZoneEvents(zone) {
@@ -100,20 +167,18 @@ const GameEngine = (() => {
   }
 
   // ======= PC Drag & Drop =======
-  let draggedEl = null;
-  let draggedFromZone = null;
-
   function onDragStart(e) {
     draggedEl = e.currentTarget;
-    draggedFromZone = draggedEl.parentElement;
     draggedEl.classList.add('dragging');
     e.dataTransfer.effectAllowed = 'move';
   }
 
   function onDragEnd(e) {
+    lastDragEndTime = Date.now();
     if (draggedEl) draggedEl.classList.remove('dragging');
     document.querySelectorAll('.drop-indicator').forEach((el) => el.remove());
     document.querySelectorAll('.drag-over').forEach((el) => el.classList.remove('drag-over'));
+    draggedEl = null;
   }
 
   function onDragOver(e) {
@@ -158,7 +223,8 @@ const GameEngine = (() => {
   }
 
   function getDragAfterElement(container, y) {
-    const blocks = [...container.querySelectorAll('.code-block:not(.dragging)')];
+    // ピン留めブロックはスキップ
+    const blocks = [...container.querySelectorAll('.code-block:not(.dragging):not(.pinned)')];
     return blocks.reduce(
       (closest, child) => {
         const box = child.getBoundingClientRect();
@@ -178,18 +244,22 @@ const GameEngine = (() => {
     return div;
   }
 
-  // ======= スマホ Touch Drag & Drop =======
+  // ======= スマホ Touch Drag & Drop (タップ検出付き) =======
   function onTouchStart(e) {
     if (e.touches.length !== 1) return;
     e.preventDefault();
 
     draggingEl = e.currentTarget;
-    dragSourceZone = draggingEl.parentElement;
     const touch = e.touches[0];
+    touchStartTime = Date.now();
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+
     const rect = draggingEl.getBoundingClientRect();
     dragOffsetX = touch.clientX - rect.left;
     dragOffsetY = touch.clientY - rect.top;
 
+    // クローン作成
     dragClone = draggingEl.cloneNode(true);
     dragClone.className += ' drag-clone';
     dragClone.style.width = rect.width + 'px';
@@ -225,15 +295,35 @@ const GameEngine = (() => {
     if (!draggingEl) return;
 
     const touch = e.changedTouches[0];
-    if (dragClone) dragClone.style.pointerEvents = 'none';
-    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    const totalMoved = Math.hypot(
+      touch.clientX - touchStartX,
+      touch.clientY - touchStartY
+    );
+    const elapsed = Date.now() - touchStartTime;
+
+    // クローン後処理
+    if (dragClone) {
+      dragClone.style.pointerEvents = 'none';
+    }
+    const elUnder = document.elementFromPoint(touch.clientX, touch.clientY);
     if (dragClone) {
       dragClone.style.pointerEvents = '';
       document.body.removeChild(dragClone);
       dragClone = null;
     }
 
-    const targetZone = el ? el.closest('.drop-zone') : null;
+    draggingEl.classList.remove('dragging');
+    document.querySelectorAll('.drop-zone').forEach((z) => z.classList.remove('drag-over'));
+
+    // ★ タップ判定（動きが小さく短時間）
+    if (totalMoved < 10 && elapsed < 300) {
+      handleBlockTap(draggingEl);
+      draggingEl = null;
+      return;
+    }
+
+    // 通常ドラッグ終了：ドロップ先ゾーンに配置
+    const targetZone = elUnder ? elUnder.closest('.drop-zone') : null;
     if (targetZone) {
       const afterEl = getTouchAfterElement(targetZone, touch.clientY);
       if (afterEl == null) {
@@ -243,14 +333,12 @@ const GameEngine = (() => {
       }
     }
 
-    draggingEl.classList.remove('dragging');
     draggingEl = null;
-    document.querySelectorAll('.drop-zone').forEach((z) => z.classList.remove('drag-over'));
     triggerAutoCheck();
   }
 
   function getTouchAfterElement(container, y) {
-    const blocks = [...container.querySelectorAll('.code-block:not(.dragging)')];
+    const blocks = [...container.querySelectorAll('.code-block:not(.dragging):not(.pinned)')];
     return blocks.reduce(
       (closest, child) => {
         const box = child.getBoundingClientRect();
@@ -266,8 +354,13 @@ const GameEngine = (() => {
 
   // ======= ゲームロジック =======
 
+  // ピン留めブロックを除いた並び替えブロックだけを取得
+  function getAnswerBlocks() {
+    return [...answerZone.querySelectorAll('.code-block:not(.pinned)')];
+  }
+
   function triggerAutoCheck() {
-    const answerBlocks = [...answerZone.querySelectorAll('.code-block')];
+    const answerBlocks = getAnswerBlocks();
     if (answerBlocks.length === currentProblem.blocks.length) {
       const order = answerBlocks.map((el) => parseInt(el.dataset.blockId));
       const isCorrect = JSON.stringify(order) === JSON.stringify(currentProblem.correctOrder);
@@ -278,7 +371,7 @@ const GameEngine = (() => {
   }
 
   function checkAnswer() {
-    const answerBlocks = [...answerZone.querySelectorAll('.code-block')];
+    const answerBlocks = getAnswerBlocks();
     if (answerBlocks.length === 0) {
       showFeedback('コードブロックを上のエリアに配置してください！', 'warn');
       return;
@@ -303,7 +396,6 @@ const GameEngine = (() => {
   function onCorrect() {
     const elapsed = Math.floor((Date.now() - startTime) / 1000);
     const score = calcScore(hintsUsed, elapsed);
-    // 正解後：整形済みコードを表示してからコールバック
     showSolutionModal(currentProblem, score, elapsed, hintsUsed);
   }
 
@@ -316,32 +408,27 @@ const GameEngine = (() => {
 
   // ======= 正解後ソリューションモーダル =======
   function showSolutionModal(problem, score, elapsed, hints) {
-    // 既存モーダルがあれば削除
     const existing = document.getElementById('solution-modal');
     if (existing) existing.remove();
 
-    // 正しいインデントで全コードを組み立て
-    const fullCode = problem.blocks
-      .map((b) => problem.correctOrder.map((id) => problem.blocks.find((bl) => bl.id === id)))
-      .flat()
-      // correctOrder順に並んだブロックのcodeを繋げる
-      [0]; // ← 後で正しく構築
-
+    // pinnedCode（import等）+ 並び替えブロックの順でコードを構築
     const orderedBlocks = problem.correctOrder.map((id) =>
       problem.blocks.find((b) => b.id === id)
     );
-    const codeLines = orderedBlocks.map((b) => b.code);
+    const pinnedLines = problem.pinnedCode || [];
+    const codeLines = [
+      ...pinnedLines,
+      ...orderedBlocks.map((b) => b.code),
+    ];
 
     const scoreColors = { S: '#fbbf24', A: '#34d399', B: '#60a5fa', C: '#a78bfa' };
     const scoreColor = scoreColors[score] || '#fff';
-
     const scoreMessages = {
       S: '完璧！ヒントなしでクリア！🎉',
       A: 'Great！1ヒントでクリア！👏',
       B: 'Good！2ヒントでクリア！',
       C: 'クリア！次回はヒント少なく！',
     };
-
     const langLabel = problem.language === 'cpp' ? 'C++' : problem.language.toUpperCase();
 
     const modal = document.createElement('div');
@@ -350,13 +437,12 @@ const GameEngine = (() => {
     modal.innerHTML = `
       <div class="solution-modal">
         <div class="solution-modal-header">
-          <div class="solution-score-badge" style="color: ${scoreColor}; border-color: ${scoreColor};">${score}</div>
+          <div class="solution-score-badge" style="color:${scoreColor};border-color:${scoreColor};">${score}</div>
           <div class="solution-header-info">
             <div class="solution-title">${problem.title}</div>
             <div class="solution-msg">${scoreMessages[score] || ''}</div>
           </div>
         </div>
-
         <div class="solution-code-section">
           <div class="solution-code-label">
             <span>✅ 正しいコード</span>
@@ -366,7 +452,6 @@ const GameEngine = (() => {
             <pre class="solution-pre"><code id="solution-code-content"></code></pre>
           </div>
         </div>
-
         <div class="solution-modal-footer">
           <button id="solution-next-btn" class="btn btn-primary">▶ 結果を見る</button>
         </div>
@@ -375,33 +460,35 @@ const GameEngine = (() => {
 
     document.body.appendChild(modal);
 
-    // コードの各行を色付きspan要素として追加（インデント保持）
+    // コード行を行番号付きで追加
     const codeEl = document.getElementById('solution-code-content');
     codeLines.forEach((line, i) => {
       const lineEl = document.createElement('div');
       lineEl.className = 'solution-line';
 
-      // 行番号
       const lineNum = document.createElement('span');
       lineNum.className = 'solution-line-num';
       lineNum.textContent = String(i + 1).padStart(2, ' ');
 
-      // コード本体
       const lineCode = document.createElement('span');
       lineCode.className = 'solution-line-code';
-      lineCode.textContent = line;
+      // pinnedCodeの行は特別にハイライト
+      if (i < pinnedLines.length) {
+        lineEl.classList.add('solution-line-pinned');
+        lineCode.textContent = line + '  # ← 自動配置済み';
+      } else {
+        lineCode.textContent = line;
+      }
 
       lineEl.appendChild(lineNum);
       lineEl.appendChild(lineCode);
       codeEl.appendChild(lineEl);
     });
 
-    // アニメーション
     requestAnimationFrame(() => {
       modal.classList.add('visible');
     });
 
-    // 「結果を見る」ボタン
     document.getElementById('solution-next-btn').addEventListener('click', () => {
       modal.classList.remove('visible');
       setTimeout(() => {
@@ -411,6 +498,7 @@ const GameEngine = (() => {
     });
   }
 
+  // ======= ヒント =======
   function showNextHint() {
     if (!currentProblem) return;
     if (hintsUsed >= currentProblem.hints.length) return;
