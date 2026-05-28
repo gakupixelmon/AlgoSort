@@ -27,6 +27,8 @@ const GameEngine = (() => {
   let touchStartTime = 0;
   let touchStartX = 0;
   let touchStartY = 0;
+  let longPressTimer = null;   // 長押し判定タイマー
+  let isDragMode = false;      // 長押しでドラッグモードに移行したか
 
   // PC DnD状態
   let draggedEl = null;
@@ -135,7 +137,7 @@ const GameEngine = (() => {
     });
 
     // === スマホ: タッチ ===
-    el.addEventListener('touchstart', onTouchStart, { passive: false });
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
 
     return el;
   }
@@ -247,14 +249,27 @@ const GameEngine = (() => {
   // ======= スマホ Touch Drag & Drop (タップ検出付き) =======
   function onTouchStart(e) {
     if (e.touches.length !== 1) return;
-    e.preventDefault();
+    // touchstart 時点では preventDefault しない（スクロールを許可）
 
-    draggingEl = e.currentTarget;
     const touch = e.touches[0];
+    const targetEl = e.currentTarget;
     touchStartTime = Date.now();
     touchStartX = touch.clientX;
     touchStartY = touch.clientY;
+    isDragMode = false;
 
+    // 長押しタイマー（150ms後にドラッグモード開始）
+    longPressTimer = setTimeout(() => {
+      isDragMode = true;
+      startDrag(targetEl, touch);
+    }, 150);
+
+    document.addEventListener('touchmove', onTouchMove, { passive: false });
+    document.addEventListener('touchend', onTouchEnd);
+  }
+
+  function startDrag(targetEl, touch) {
+    draggingEl = targetEl;
     const rect = draggingEl.getBoundingClientRect();
     dragOffsetX = touch.clientX - rect.left;
     dragOffsetY = touch.clientY - rect.top;
@@ -268,15 +283,24 @@ const GameEngine = (() => {
     document.body.appendChild(dragClone);
 
     draggingEl.classList.add('dragging');
-
-    document.addEventListener('touchmove', onTouchMove, { passive: false });
-    document.addEventListener('touchend', onTouchEnd);
   }
 
   function onTouchMove(e) {
+    const touch = e.touches[0];
+    const movedX = Math.abs(touch.clientX - touchStartX);
+    const movedY = Math.abs(touch.clientY - touchStartY);
+
+    if (!isDragMode) {
+      // 長押し前に 8px 以上動いたらスクロールと判断してドラッグキャンセル
+      if (movedX > 8 || movedY > 8) {
+        cancelDragMode();
+      }
+      return; // ドラッグモード未開始ならスクロールを許可（preventDefaultしない）
+    }
+
+    // ドラッグモード中はスクロール抑制
     e.preventDefault();
     if (!dragClone) return;
-    const touch = e.touches[0];
     dragClone.style.left = touch.clientX - dragOffsetX + 'px';
     dragClone.style.top = touch.clientY - dragOffsetY + 'px';
 
@@ -289,10 +313,31 @@ const GameEngine = (() => {
     if (zone) zone.classList.add('drag-over');
   }
 
+  function cancelDragMode() {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
+    isDragMode = false;
+    document.removeEventListener('touchmove', onTouchMove);
+    document.removeEventListener('touchend', onTouchEnd);
+    if (draggingEl) draggingEl.classList.remove('dragging');
+    if (dragClone) {
+      document.body.removeChild(dragClone);
+      dragClone = null;
+    }
+    draggingEl = null;
+  }
+
   function onTouchEnd(e) {
     document.removeEventListener('touchmove', onTouchMove);
     document.removeEventListener('touchend', onTouchEnd);
-    if (!draggingEl) return;
+
+    // 長押しタイマーをキャンセル
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
 
     const touch = e.changedTouches[0];
     const totalMoved = Math.hypot(
@@ -300,6 +345,26 @@ const GameEngine = (() => {
       touch.clientY - touchStartY
     );
     const elapsed = Date.now() - touchStartTime;
+
+    // ドラッグモードが開始されていない場合はタップ判定
+    if (!isDragMode) {
+      if (draggingEl) draggingEl.classList.remove('dragging');
+      // 短タップ（動きが小さく短時間）ならタップ移動
+      if (totalMoved < 10 && elapsed < 400) {
+        const tappedEl = e.changedTouches[0] ? document.elementFromPoint(touch.clientX, touch.clientY) : null;
+        const blockEl = tappedEl ? tappedEl.closest('.code-block:not(.pinned)') : null;
+        if (blockEl) handleBlockTap(blockEl);
+      }
+      draggingEl = null;
+      isDragMode = false;
+      return;
+    }
+
+    // ドラッグモード終了処理
+    if (!draggingEl) {
+      isDragMode = false;
+      return;
+    }
 
     // クローン後処理
     if (dragClone) {
@@ -315,13 +380,6 @@ const GameEngine = (() => {
     draggingEl.classList.remove('dragging');
     document.querySelectorAll('.drop-zone').forEach((z) => z.classList.remove('drag-over'));
 
-    // ★ タップ判定（動きが小さく短時間）
-    if (totalMoved < 10 && elapsed < 300) {
-      handleBlockTap(draggingEl);
-      draggingEl = null;
-      return;
-    }
-
     // 通常ドラッグ終了：ドロップ先ゾーンに配置
     const targetZone = elUnder ? elUnder.closest('.drop-zone') : null;
     if (targetZone) {
@@ -334,6 +392,7 @@ const GameEngine = (() => {
     }
 
     draggingEl = null;
+    isDragMode = false;
     triggerAutoCheck();
   }
 

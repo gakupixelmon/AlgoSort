@@ -566,7 +566,7 @@
   background: var(--bg-tertiary);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 10px 14px;
+  padding: 7px 10px;
   cursor: grab;
   transition: var(--transition);
   display: flex;
@@ -575,7 +575,7 @@
   user-select: none;
   -webkit-user-select: none;
   position: relative;
-  touch-action: none;
+  touch-action: auto;  /* スクロールを許可（長押し後にドラッグ開始） */
 }
 
 .code-block::before {
@@ -601,20 +601,17 @@
   cursor: grabbing;
 }
 
-.code-block.dragging {
-  opacity: 0.4;
-  transform: scale(0.98);
-}
+
 
 .block-code {
   font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
-  font-size: 13px;
+  font-size: 11px;
   color: #e2e8f0;
   white-space: pre;
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 /* タップアイコン（右端に表示） */
@@ -639,6 +636,13 @@
 @keyframes tapFlash {
   0%   { background: rgba(124,58,237,0.25); transform: scale(1.02); }
   100% { background: var(--bg-tertiary);   transform: scale(1); }
+}
+
+/* 長押し中のドラッグ開始フィードバック */
+.code-block.dragging {
+  opacity: 0.45;
+  transform: scale(0.97);
+  border-color: var(--accent-purple);
 }
 
 /* ===== ピン留めブロック（import等の固定表示） ===== */
@@ -919,7 +923,7 @@
   }
 
   .block-code {
-    font-size: 14px;
+    font-size: 12px;
   }
 
   #answer-zone, #choices-zone {
