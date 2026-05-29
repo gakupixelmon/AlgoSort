@@ -418,11 +418,17 @@ const GameEngine = (() => {
     return [...answerZone.querySelectorAll('.code-block:not(.pinned)')];
   }
 
+  // correctOrders（配列の配列）のいずれかと一致するか判定
+  function isOrderCorrect(order, correctOrders) {
+    const orderStr = JSON.stringify(order);
+    return correctOrders.some((co) => JSON.stringify(co) === orderStr);
+  }
+
   function triggerAutoCheck() {
     const answerBlocks = getAnswerBlocks();
     if (answerBlocks.length === currentProblem.blocks.length) {
       const order = answerBlocks.map((el) => parseInt(el.dataset.blockId));
-      const isCorrect = JSON.stringify(order) === JSON.stringify(currentProblem.correctOrder);
+      const isCorrect = isOrderCorrect(order, currentProblem.correctOrders);
       if (isCorrect) {
         setTimeout(onCorrect, 300);
       }
@@ -441,7 +447,7 @@ const GameEngine = (() => {
     }
 
     const order = answerBlocks.map((el) => parseInt(el.dataset.blockId));
-    const isCorrect = JSON.stringify(order) === JSON.stringify(currentProblem.correctOrder);
+    const isCorrect = isOrderCorrect(order, currentProblem.correctOrders);
 
     if (isCorrect) {
       onCorrect();
@@ -471,7 +477,9 @@ const GameEngine = (() => {
     if (existing) existing.remove();
 
     // pinnedCode（import等）+ 並び替えブロックの順でコードを構築
-    const orderedBlocks = problem.correctOrder.map((id) =>
+    // correctOrders[0] を代表正解としてコード表示に使用
+    const representativeOrder = problem.correctOrders[0];
+    const orderedBlocks = representativeOrder.map((id) =>
       problem.blocks.find((b) => b.id === id)
     );
     const pinnedLines = problem.pinnedCode || [];
@@ -489,6 +497,33 @@ const GameEngine = (() => {
       C: 'クリア！次回はヒント少なく！',
     };
     const langLabel = problem.language === 'cpp' ? 'C++' : problem.language.toUpperCase();
+
+    // 解説セクションのHTML（explanationが存在する場合のみ）
+    const exp = problem.explanation;
+    let explanationHtml = '';
+    if (exp) {
+      const pointsHtml = exp.points
+        .map(p => `<li class="explanation-point">${p}</li>`)
+        .join('');
+      const complexityHtml = exp.complexity
+        ? `<div class="explanation-complexity">
+            <span class="complexity-item"><span class="complexity-label">時間計算量</span><code class="complexity-value">${exp.complexity.time}</code></span>
+            <span class="complexity-item"><span class="complexity-label">空間計算量</span><code class="complexity-value">${exp.complexity.space}</code></span>
+           </div>`
+        : '';
+      const tipHtml = exp.tip
+        ? `<div class="explanation-tip"><span class="tip-icon">💡</span><span>${exp.tip}</span></div>`
+        : '';
+      explanationHtml = `
+        <div class="solution-explanation-section">
+          <div class="explanation-label">📖 解説</div>
+          <p class="explanation-summary">${exp.summary}</p>
+          <ul class="explanation-points">${pointsHtml}</ul>
+          ${complexityHtml}
+          ${tipHtml}
+        </div>
+      `;
+    }
 
     const modal = document.createElement('div');
     modal.id = 'solution-modal';
@@ -511,6 +546,7 @@ const GameEngine = (() => {
             <pre class="solution-pre"><code id="solution-code-content"></code></pre>
           </div>
         </div>
+        ${explanationHtml}
         <div class="solution-modal-footer">
           <button id="solution-next-btn" class="btn btn-primary">▶ 結果を見る</button>
         </div>
