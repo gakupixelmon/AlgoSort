@@ -101,7 +101,15 @@ const PROBLEMS_DB = {
         { id: 9,  code: '    return -1;' },
         { id: 10, code: '}' },
       ],
-      correctOrders: [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]],
+      // id:1（left=0）と id:2（right=arr.size()-1）はどちらが先でも動作する
+      // id:5（if return mid）, id:6（else if left=mid+1）, id:7（else right=mid-1）は
+      // if/else if/else の連続なので 5→6→7 の順序が必要
+      partialOrder: [
+        [0, 1], [0, 2],
+        [1, 3], [2, 3], // 両初期化が終わってから while
+        [3, 4], [4, 5], [5, 6], [6, 7], [7, 8],
+        [8, 9], [9, 10],
+      ],
       hints: [
         'left=0, right=arr.size()-1 で探索範囲を初期化する',
         'mid = left + (right - left) / 2 で中点を計算する（オーバーフロー防止）',
@@ -149,7 +157,26 @@ const PROBLEMS_DB = {
         { id: 14, code: '    }' },
         { id: 15, code: '}' },
       ],
-      correctOrders: [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]],
+      // partialOrder による部分順序制約方式で判定する。
+      // 【初期化ブロック（id:1〜4）の自由度】
+      //   id:1（visited宣言）と id:2（queue宣言）は相互に任意順
+      //   id:3（q.push）は id:2 の後、id:4（visited[start]=true）は id:1 の後
+      //   id:3 と id:4 は相互に任意順（依存なし）
+      // 【if ブロック内（id:10, id:11）の自由度】
+      //   visited[next]=true（id:10）と q.push(next)（id:11）は任意順
+      // 【閉じ括弧（id:12〜15）は厳密固定】
+      //   C++ は { } のネスト構造で決まるため 12→13→14→15 は必須
+      partialOrder: [
+        [0, 1], [0, 2], [0, 3], [0, 4],
+        [1, 4],                          // visited 宣言 → visited[start]=true
+        [2, 3],                          // queue 宣言 → q.push(start)
+        [1, 5], [2, 5], [3, 5], [4, 5], // 初期化完了後に while
+        [5, 6], [6, 7], [7, 8],          // front() → pop() → for ループ
+        [8, 9],                          // for → if
+        [9, 10], [9, 11],                // if → （visited=true と q.push は任意順）
+        [10, 12], [11, 12],              // 両操作完了後に if の閉じ }
+        [12, 13], [13, 14], [14, 15],    // } の閉じは厳密順（for→while→関数）
+      ],
       hints: [
         'visited 配列と queue を用意し、始点を queue に積んで visited = true にする',
         'while (!q.empty()) ループで queue が空になるまで繰り返す。front() で取り出し pop() する',
