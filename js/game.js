@@ -418,17 +418,26 @@ const GameEngine = (() => {
     return [...answerZone.querySelectorAll('.code-block:not(.pinned)')];
   }
 
-  // correctOrders（配列の配列）のいずれかと一致するか判定
-  function isOrderCorrect(order, correctOrders) {
+  // 正解判定：partialOrder（部分順序制約）があれば制約チェック、なければ correctOrders と一致するか判定
+  // partialOrder: [[a, b], ...] = 「ブロック id:a は id:b より前に来なければならない」制約リスト
+  function isOrderCorrect(order, problem) {
+    if (problem.partialOrder && problem.partialOrder.length > 0) {
+      // 各ブロックIDの「答えエリア内での位置」を記録
+      const indexMap = {};
+      order.forEach((id, i) => { indexMap[id] = i; });
+      // 全ての制約 [a, b]（a は b より前）を満たすか検証
+      return problem.partialOrder.every(([a, b]) => indexMap[a] < indexMap[b]);
+    }
+    // 従来方式: correctOrders のいずれかと完全一致するか
     const orderStr = JSON.stringify(order);
-    return correctOrders.some((co) => JSON.stringify(co) === orderStr);
+    return problem.correctOrders.some((co) => JSON.stringify(co) === orderStr);
   }
 
   function triggerAutoCheck() {
     const answerBlocks = getAnswerBlocks();
     if (answerBlocks.length === currentProblem.blocks.length) {
       const order = answerBlocks.map((el) => parseInt(el.dataset.blockId));
-      const isCorrect = isOrderCorrect(order, currentProblem.correctOrders);
+      const isCorrect = isOrderCorrect(order, currentProblem);
       if (isCorrect) {
         setTimeout(onCorrect, 300);
       }
@@ -447,7 +456,7 @@ const GameEngine = (() => {
     }
 
     const order = answerBlocks.map((el) => parseInt(el.dataset.blockId));
-    const isCorrect = isOrderCorrect(order, currentProblem.correctOrders);
+    const isCorrect = isOrderCorrect(order, currentProblem);
 
     if (isCorrect) {
       onCorrect();
