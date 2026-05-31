@@ -14,7 +14,9 @@
  */
 
 // ── PROBLEMS_DB: 問題ファイルから自動集約 ──────────────────
-const PROBLEMS_DB = {};
+// window.PROBLEMS_DB に代入して全スクリプトからアクセス可能にする
+window.PROBLEMS_DB = window.PROBLEMS_DB || {};
+const PROBLEMS_DB = window.PROBLEMS_DB;
 (window.PROBLEMS_REGISTRY || []).forEach(p => {
   if (!PROBLEMS_DB[p.category]) PROBLEMS_DB[p.category] = [];
   PROBLEMS_DB[p.category].push(p);
@@ -26,7 +28,8 @@ Object.values(PROBLEMS_DB).forEach(arr =>
 
 // ── カテゴリ定義 ──────────────────────────────────────────
 // randomEligible: false のカテゴリはランダムモードの出題対象外
-const CATEGORIES = [
+window.CATEGORIES = window.CATEGORIES || [];
+const CATEGORIES = window.CATEGORIES = [
   {
     id: 'basic',
     label: '基本アルゴリズム',
@@ -70,7 +73,8 @@ const CATEGORIES = [
 ];
 
 // ── DataManager ───────────────────────────────────────────
-const DataManager = (() => {
+// window.DataManager に代入して確実にグローバル公開
+const DataManager = window.DataManager = (() => {
   // 全問題をフラットなリストで返す（カテゴリモード用）
   function getAllProblems() {
     return Object.values(PROBLEMS_DB).flat();
