@@ -548,8 +548,42 @@ const GameEngine = (() => {
     if (existing) existing.remove();
 
     // pinnedCode（import等）+ 並び替えブロックの順でコードを構築
-    // correctOrders[0] を代表正解としてコード表示に使用
-    const representativeOrder = problem.correctOrders[0];
+    // correctOrders[0] があればそれを代表正解として使用。
+    // partialOrder のみの問題（correctOrders なし）はトポロジカルソートで代表順を生成。
+    // どちらもない場合は blocks の定義順にフォールバック。
+    let representativeOrder;
+    if (problem.correctOrders && problem.correctOrders.length > 0) {
+      representativeOrder = problem.correctOrders[0];
+    } else if (problem.partialOrder && problem.partialOrder.length > 0) {
+      // トポロジカルソート（Kahn's algorithm）で partialOrder を満たす代表順を生成
+      const blockIds = problem.blocks.map((b) => b.id);
+      const inDegree = {};
+      const adj = {};
+      blockIds.forEach((id) => { inDegree[id] = 0; adj[id] = []; });
+      problem.partialOrder.forEach(([a, b]) => {
+        if (inDegree[b] !== undefined && adj[a] !== undefined) {
+          adj[a].push(b);
+          inDegree[b]++;
+        }
+      });
+      const queue = blockIds.filter((id) => inDegree[id] === 0);
+      representativeOrder = [];
+      while (queue.length > 0) {
+        const cur = queue.shift();
+        representativeOrder.push(cur);
+        (adj[cur] || []).forEach((next) => {
+          inDegree[next]--;
+          if (inDegree[next] === 0) queue.push(next);
+        });
+      }
+      // トポロジカルソートで全ブロックを並べられなかった場合（循環等）は定義順にフォールバック
+      if (representativeOrder.length !== blockIds.length) {
+        representativeOrder = blockIds;
+      }
+    } else {
+      // どちらもない場合は blocks の定義順
+      representativeOrder = problem.blocks.map((b) => b.id);
+    }
     const orderedBlocks = representativeOrder.map((id) =>
       problem.blocks.find((b) => b.id === id)
     );
