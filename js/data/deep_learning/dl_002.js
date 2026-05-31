@@ -1,0 +1,40 @@
+// dl_002: 勾配降下法（パラメータ更新）(Python)
+(window.PROBLEMS_REGISTRY = window.PROBLEMS_REGISTRY || []).push({
+  id: 'dl_002',
+  title: '勾配降下法（パラメータ更新）',
+  category: 'deep_learning',
+  categoryLabel: '深層学習',
+  difficulty: 3,
+  language: 'python',
+  description: '勾配降下法を使ってニューラルネットワークのパラメータを更新せよ。\n\n以下の独自関数がすでに実装済みとして使用できる:\n・forward_pass(X, W1, b1, W2, b2) → (A2, cache): 順伝播を実行し出力と中間値キャッシュを返す\n・compute_loss(A2, y) → loss: 予測値A2と正解ラベルyから損失値（誤差）を計算する\n・backward_pass(A2, y, cache) → grads: 逆伝播で各パラメータの勾配辞書{"dW1","db1","dW2","db2"}を返す\n\nこれらを使って、gradient_descent関数と1ステップ分の学習処理train_stepを実装せよ。',
+  blocks: [
+    { id: 0,  code: 'def gradient_descent(W, b, dW, db, lr):' },
+    { id: 1,  code: '    W = W - lr * dW' },
+    { id: 2,  code: '    b = b - lr * db' },
+    { id: 3,  code: '    return W, b' },
+    { id: 4,  code: 'def train_step(X, y, W1, b1, W2, b2, lr):' },
+    { id: 5,  code: '    A2, cache = forward_pass(X, W1, b1, W2, b2)' },
+    { id: 6,  code: '    loss = compute_loss(A2, y)' },
+    { id: 7,  code: '    grads = backward_pass(A2, y, cache)' },
+    { id: 8,  code: '    W1, b1 = gradient_descent(W1, b1, grads["dW1"], grads["db1"], lr)' },
+    { id: 9,  code: '    W2, b2 = gradient_descent(W2, b2, grads["dW2"], grads["db2"], lr)' },
+    { id: 10, code: '    return W1, b1, W2, b2, loss' },
+  ],
+  correctOrders: [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]],
+  hints: [
+    '先に gradient_descent 関数を定義する: W -= lr * dW, b -= lr * db',
+    'train_step は 順伝播 → 損失計算 → 逆伝播 の順に実行する',
+    '各レイヤーの重み・バイアスを gradient_descent で更新してまとめて return する',
+  ],
+  explanation: {
+    summary: '勾配降下法はニューラルネットの学習の根幹です。損失関数の勾配（傾き）の反対方向にパラメータを少しずつ動かすことで、損失を最小化します。',
+    points: [
+      'W = W - lr * dW というシンプルな更新式。lr（学習率）は更新幅を制御する重要なハイパーパラメータ',
+      '1ステップの学習は「順伝播 → 損失計算 → 逆伝播 → パラメータ更新」の順',
+      '逆伝播 backward_pass() が返す grads 辞書から各パラメータの勾配を取り出す',
+      'W1, b1, W2, b2 の全パラメータを更新して返すことで、次ステップに引き継ぐ',
+    ],
+    complexity: { time: 'O(n·d₁ + d₁·d₂) per step', space: 'O(d₁ + d₂)' },
+    tip: '学習率が大きすぎると発散し、小さすぎると収束が遅い。Adam など適応的学習率アルゴリズムが現代では一般的です。',
+  },
+});

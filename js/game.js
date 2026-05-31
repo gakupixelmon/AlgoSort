@@ -418,16 +418,78 @@ const GameEngine = (() => {
     return [...answerZone.querySelectorAll('.code-block:not(.pinned)')];
   }
 
+  // 配列の全順列を生成（同一テキストブロックの順列試行に使用）
+  function generatePermutations(arr) {
+    if (arr.length <= 1) return [arr.slice()];
+    const result = [];
+    for (let i = 0; i < arr.length; i++) {
+      const rest = [...arr.slice(0, i), ...arr.slice(i + 1)];
+      generatePermutations(rest).forEach(perm => result.push([arr[i], ...perm]));
+    }
+    return result;
+  }
+
   // 正解判定：partialOrder（部分順序制約）があれば制約チェック、なければ correctOrders と一致するか判定
   // partialOrder: [[a, b], ...] = 「ブロック id:a は id:b より前に来なければならない」制約リスト
+  //
+  // 【同一表示テキスト対応】
+  // } など trimStart() 後に同一テキストになるブロックは視覚的に区別不可。
+  // そのため同一テキストを持つブロック群の全順列を試し、
+  // いずれか一つが全制約を満たせば正解とする。
   function isOrderCorrect(order, problem) {
     if (problem.partialOrder && problem.partialOrder.length > 0) {
-      // 各ブロックIDの「答えエリア内での位置」を記録
-      const indexMap = {};
-      order.forEach((id, i) => { indexMap[id] = i; });
-      // 全ての制約 [a, b]（a は b より前）を満たすか検証
-      return problem.partialOrder.every(([a, b]) => indexMap[a] < indexMap[b]);
+      const blocks = problem.blocks;
+
+      // 各ブロックの表示テキスト（trimStart済み）を取得
+      const displayText = {};
+      blocks.forEach(b => { displayText[b.id] = b.code.trimStart(); });
+
+      // 同一表示テキストのブロックをグループ化（orderに現れるIDのみ）
+      const textGroups = {};
+      order.forEach(id => {
+        const text = displayText[id];
+        if (!textGroups[text]) textGroups[text] = [];
+        textGroups[text].push(id);
+      });
+
+      // 重複するグループ（サイズ2以上）のみ抽出
+      const dupeGroups = Object.values(textGroups).filter(g => g.length > 1);
+
+      // partialOrder 制約チェック（指定orderに対して）
+      const checkConstraints = (testOrder) => {
+        const indexMap = {};
+        testOrder.forEach((id, i) => { indexMap[id] = i; });
+        return problem.partialOrder.every(([a, b]) => indexMap[a] < indexMap[b]);
+      };
+
+      // 重複グループがなければそのままチェック
+      if (dupeGroups.length === 0) {
+        return checkConstraints(order);
+      }
+
+      // 同一テキストグループの全順列を試み、1つでも全制約を満たせば正解
+      const tryAllPermutations = (currentOrder, groupIdx) => {
+        if (groupIdx >= dupeGroups.length) {
+          return checkConstraints(currentOrder);
+        }
+        const group = dupeGroups[groupIdx];
+        // このグループのブロックが currentOrder 内で占める位置インデックス
+        const positions = [];
+        currentOrder.forEach((id, pos) => {
+          if (group.includes(id)) positions.push(pos);
+        });
+
+        for (const perm of generatePermutations(group)) {
+          const newOrder = [...currentOrder];
+          positions.forEach((pos, i) => { newOrder[pos] = perm[i]; });
+          if (tryAllPermutations(newOrder, groupIdx + 1)) return true;
+        }
+        return false;
+      };
+
+      return tryAllPermutations(order, 0);
     }
+
     // 従来方式: correctOrders のいずれかと完全一致するか
     const orderStr = JSON.stringify(order);
     return problem.correctOrders.some((co) => JSON.stringify(co) === orderStr);
