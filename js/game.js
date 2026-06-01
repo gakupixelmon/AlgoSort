@@ -29,6 +29,7 @@ const GameEngine = (() => {
   let touchStartY = 0;
   let longPressTimer = null;   // 長押し判定タイマー
   let isDragMode = false;      // 長押しでドラッグモードに移行したか
+  let lastTapTime = 0;         // タッチタップ終了時刻（click二重発火防止用）
 
   // PC DnD状態
   let draggedEl = null;
@@ -130,9 +131,11 @@ const GameEngine = (() => {
     el.addEventListener('dragend', onDragEnd);
 
     // === PC: クリック（タップ移動） ===
-    // dragEnd後 100ms 以内のclickはドラッグ起因なのでスキップ
+    // dragEnd後 150ms 以内のclickはドラッグ起因なのでスキップ
+    // タッチタップ後 200ms 以内のclickはtouchendで既に処理済みなのでスキップ
     el.addEventListener('click', () => {
       if (Date.now() - lastDragEndTime < 150) return;
+      if (Date.now() - lastTapTime < 200) return;
       handleBlockTap(el);
     });
 
@@ -351,9 +354,15 @@ const GameEngine = (() => {
       if (draggingEl) draggingEl.classList.remove('dragging');
       // 短タップ（動きが小さく短時間）ならタップ移動
       if (totalMoved < 10 && elapsed < 400) {
-        const tappedEl = e.changedTouches[0] ? document.elementFromPoint(touch.clientX, touch.clientY) : null;
+        // touchstart で記録した要素を使ってタップ判定
+        // （elementFromPoint は指が少しずれた別のブロックを拾う場合があるため
+        //   currentTarget 経由で登録済みの要素を優先する）
+        const tappedEl = document.elementFromPoint(touch.clientX, touch.clientY);
         const blockEl = tappedEl ? tappedEl.closest('.code-block:not(.pinned)') : null;
-        if (blockEl) handleBlockTap(blockEl);
+        if (blockEl) {
+          lastTapTime = Date.now(); // click二重発火防止
+          handleBlockTap(blockEl);
+        }
       }
       draggingEl = null;
       isDragMode = false;
