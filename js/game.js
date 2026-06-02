@@ -16,8 +16,15 @@ const GameEngine = (() => {
   let choicesZone = null;
   let hintBtn = null;
   let hintText = null;
+  let hintNav = null;
+  let hintPrevBtn = null;
+  let hintNextBtn = null;
+  let hintCounter = null;
   let checkBtn = null;
   let giveUpBtn = null;
+
+  // 開示済みヒントの履歴と現在表示中のインデックス
+  let viewingHintIndex = -1;  // -1 = 未表示, 0 = 1枚目 ...
 
   // タッチDnD用状態
   let draggingEl = null;
@@ -58,9 +65,17 @@ const GameEngine = (() => {
     checkBtn = elements.checkBtn;
     giveUpBtn = elements.giveUpBtn;
 
+    // ヒントナビゲーション要素
+    hintNav     = document.getElementById('hint-nav');
+    hintPrevBtn = document.getElementById('hint-prev-btn');
+    hintNextBtn = document.getElementById('hint-next-btn');
+    hintCounter = document.getElementById('hint-counter');
+
     answerZone.innerHTML = '';
     choicesZone.innerHTML = '';
-    if (hintText) hintText.textContent = '';
+    if (hintText) { hintText.innerHTML = ''; hintText.classList.remove('has-hint'); }
+    if (hintNav) hintNav.hidden = true;
+    viewingHintIndex = -1;
 
     // ① ピン留めブロックを答えエリア上部に配置（固定・移動不可）
     if (problem.pinnedCode && problem.pinnedCode.length > 0) {
@@ -81,13 +96,27 @@ const GameEngine = (() => {
     setupZoneEvents(answerZone);
     setupZoneEvents(choicesZone);
 
-    // ④ ヒントボタン（重複登録防止）
+    // ⑤ ヒントボタン（重複登録防止）
     if (hintBtn) {
       const newBtn = hintBtn.cloneNode(true);
       hintBtn.parentNode.replaceChild(newBtn, hintBtn);
       hintBtn = newBtn;
-      hintBtn.addEventListener('click', showNextHint);
-      updateHintButton();
+      hintBtn.addEventListener('click', unlockNextHint);
+      updateHintUI();
+    }
+
+    // ヒントナビボタン登録（cloneNode不要：毎回叁照を取り直すのできれい）
+    if (hintPrevBtn) {
+      const nb = hintPrevBtn.cloneNode(true);
+      hintPrevBtn.parentNode.replaceChild(nb, hintPrevBtn);
+      hintPrevBtn = nb;
+      hintPrevBtn.addEventListener('click', () => goHint(-1));
+    }
+    if (hintNextBtn) {
+      const nb = hintNextBtn.cloneNode(true);
+      hintNextBtn.parentNode.replaceChild(nb, hintNextBtn);
+      hintNextBtn = nb;
+      hintNextBtn.addEventListener('click', () => goHint(1));
     }
 
     // ⑤ 正解チェックボタン（重複登録防止）
@@ -874,28 +903,64 @@ const GameEngine = (() => {
   }
 
   // ======= ヒント =======
-  function showNextHint() {
+
+  // 新しいヒントを開示（スコアに影響）
+  function unlockNextHint() {
     if (!currentProblem) return;
     if (hintsUsed >= currentProblem.hints.length) return;
 
-    const hint = currentProblem.hints[hintsUsed];
     hintsUsed++;
-
-    if (hintText) {
-      const item = document.createElement('div');
-      item.className = 'hint-item hint-appear';
-      item.textContent = `💡 ヒント ${hintsUsed}: ${hint}`;
-      hintText.appendChild(item);
-      setTimeout(() => item.classList.remove('hint-appear'), 500);
-    }
-    updateHintButton();
+    viewingHintIndex = hintsUsed - 1; // 開示した最新ヒントを表示
+    renderHint();
+    updateHintUI();
   }
 
-  function updateHintButton() {
-    if (!hintBtn || !currentProblem) return;
-    const remaining = currentProblem.hints.length - hintsUsed;
-    hintBtn.textContent = `💡 ヒント (残り${remaining})`;
-    hintBtn.disabled = remaining === 0;
+  // 前後移動（delta: -1 または +1）
+  function goHint(delta) {
+    if (viewingHintIndex < 0) return;
+    const next = viewingHintIndex + delta;
+    if (next < 0 || next >= hintsUsed) return;
+    viewingHintIndex = next;
+    renderHint();
+    updateHintUI();
+  }
+
+  // 現在の viewingHintIndex のヒントを表示
+  function renderHint() {
+    if (!hintText || viewingHintIndex < 0) return;
+    const hint = currentProblem.hints[viewingHintIndex];
+    hintText.textContent = `💡 ヒント ${viewingHintIndex + 1}: ${hint}`;
+    hintText.classList.add('has-hint', 'hint-appear');
+    setTimeout(() => hintText.classList.remove('hint-appear'), 400);
+  }
+
+  // UI状態を更新（ボタンの有効無効・カウンター・ナビ表示）
+  function updateHintUI() {
+    if (!currentProblem) return;
+    const total = currentProblem.hints.length;
+    const remaining = total - hintsUsed;
+
+    // 開示ボタン
+    if (hintBtn) {
+      hintBtn.textContent = remaining > 0
+        ? `💡 次のヒントを開く (残り${remaining})`
+        : '💡 ヒントはこれで全部';
+      hintBtn.disabled = remaining === 0;
+    }
+
+    // ナビゲーションバー（開示済みが1件以上なら表示）
+    if (hintNav) {
+      hintNav.hidden = hintsUsed === 0;
+    }
+    if (hintCounter) {
+      hintCounter.textContent = hintsUsed > 0 ? `${viewingHintIndex + 1} / ${hintsUsed}` : '';
+    }
+    if (hintPrevBtn) {
+      hintPrevBtn.disabled = viewingHintIndex <= 0;
+    }
+    if (hintNextBtn) {
+      hintNextBtn.disabled = viewingHintIndex >= hintsUsed - 1;
+    }
   }
 
   function showFeedback(msg, type) {

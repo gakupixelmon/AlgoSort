@@ -151,8 +151,16 @@
     <!-- ゲームフッター -->
     <div class="game-footer">
       <div class="hint-area">
-        <button id="hint-btn">💡 ヒント (残り3)</button>
+        <!-- ヒントナビゲーションバー（ヒント開示後に表示） -->
+        <div class="hint-nav" id="hint-nav" hidden>
+          <button class="hint-nav-btn" id="hint-prev-btn" aria-label="前のヒント">‹</button>
+          <span class="hint-counter" id="hint-counter">1 / 1</span>
+          <button class="hint-nav-btn" id="hint-next-btn" aria-label="次のヒント">›</button>
+        </div>
+        <!-- ヒントテキスト -->
         <div id="hint-text"></div>
+        <!-- 新しいヒントを開示するボタン -->
+        <button id="hint-btn">💡 ヒント (残り3)</button>
       </div>
       <div class="game-actions">
         <button id="check-btn">✓ 正解チェック</button>

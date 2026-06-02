@@ -752,31 +752,73 @@
 }
 
 #hint-text {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-height: 0;
-  transition: var(--transition);
-}
-
-#hint-text:empty {
-  display: none;
-}
-
-/* 各ヒントアイテム */
-.hint-item {
+  display: none;    /* 未開示時は非表示 */
   font-size: 13px;
   color: var(--accent-orange);
   padding: var(--space-sm) var(--space-md);
   background: rgba(245,158,11,0.08);
   border: 1px solid rgba(245,158,11,0.2);
   border-radius: var(--radius-md);
-  line-height: 1.5;
+  line-height: 1.55;
+  min-height: 0;
+  transition: var(--transition);
 }
 
-/* 2つ目以降は少し薄くして最新ヒントを強調 */
-.hint-item:not(:last-child) {
-  opacity: 0.55;
+#hint-text.has-hint {
+  display: block;
+}
+
+/* 各ヒントアイテム */
+.hint-item {
+  display: none;
+}
+.hint-item.active {
+  display: block;
+}
+
+/* ヒントナビゲーションバー */
+.hint-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-bottom: 4px;
+}
+
+.hint-nav-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  width: 28px;
+  height: 28px;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.hint-nav-btn:hover:not(:disabled) {
+  border-color: var(--accent-orange);
+  color: var(--accent-orange);
+  background: rgba(245,158,11,0.08);
+}
+
+.hint-nav-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.hint-counter {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 .hint-appear {
