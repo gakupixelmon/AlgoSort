@@ -183,8 +183,6 @@ const GameEngine = (() => {
   }
 
   function onSliderTouchStart(e) {
-    // コードブロック上のタッチはスワイプにしない（DnD優先）
-    if (e.target.closest('.code-block') || e.target.closest('.drop-zone')) return;
     if (e.touches.length !== 1) return;
     sliderSwipeStartX = e.touches[0].clientX;
     sliderSwipeStartY = e.touches[0].clientY;
@@ -194,20 +192,25 @@ const GameEngine = (() => {
 
   function onSliderTouchMove(e) {
     if (e.touches.length !== 1) return;
+    // touchstart が未記録の場合はスキップ（guard）
+    if (sliderSwipeStartX === 0 && sliderSwipeStartY === 0) return;
+
     const dx = e.touches[0].clientX - sliderSwipeStartX;
     const dy = e.touches[0].clientY - sliderSwipeStartY;
 
-    // 横方向が優勢ならスワイプ（縦スクロールを優先しない）
+    // 方向判定フェーズ
     if (!sliderDragging) {
       if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
-      if (Math.abs(dy) > Math.abs(dx)) return; // 縦スクロール優先
+      if (Math.abs(dy) > Math.abs(dx)) return; // 縦方向が優勢 → スクロール優先
+      // 横方向のスワイプ確定：ブロックDnDをキャンセルして自分が引き受ける
       sliderDragging = true;
+      cancelDragMode(); // ブロックの長押しDnDを中断
     }
 
     e.preventDefault();
     sliderEl.classList.add('dragging');
     const bodyWidth = sliderEl.parentElement ? sliderEl.parentElement.clientWidth : window.innerWidth;
-    // 端での抵抗感（ラバーバンド）
+    // ラバーバンド（端での抵抗感）
     let newTranslate = sliderStartTranslate + dx;
     const minTranslate = -bodyWidth;
     const maxTranslate = 0;
@@ -221,17 +224,22 @@ const GameEngine = (() => {
     if (!sliderDragging) return;
     sliderDragging = false;
 
+    // dx を計算してからリセット（順序重要）
     const dx = e.changedTouches[0].clientX - sliderSwipeStartX;
+    sliderSwipeStartX = 0;
+    sliderSwipeStartY = 0;
+
     const threshold = 60; // px
 
     if (dx < -threshold && currentPage === 0) {
-      goToPage(1); // 右スワイプ→コードページへ
+      goToPage(1);
     } else if (dx > threshold && currentPage === 1) {
-      goToPage(0); // 左スワイプ→問題ページへ
+      goToPage(0);
     } else {
-      goToPage(currentPage); // 元のページに戻す
+      goToPage(currentPage);
     }
   }
+
 
   // ======= ピン留めブロック（固定表示・ドラッグ不可） =======
   function createPinnedElement(code) {
