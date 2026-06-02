@@ -98,39 +98,53 @@
           <span class="lang-badge" id="game-lang">C++</span>
         </div>
       </div>
+      <!-- スマホ用ページインジケーター -->
+      <div class="page-indicator" id="page-indicator" aria-hidden="true">
+        <span class="page-dot active" data-page="0"></span>
+        <span class="page-dot" data-page="1"></span>
+      </div>
     </div>
 
-    <!-- ゲームボディ -->
+    <!-- ゲームボディ（スマホ：スワイプスライダー / デスクトップ：縦並び） -->
     <div class="game-body">
 
-      <!-- 問題文カード（目立つように独立表示） -->
-      <div class="problem-statement-card">
-        <div class="problem-statement-label">📝 問題</div>
-        <p class="problem-statement-text" id="game-description">問題の説明</p>
-      </div>
+      <!-- スライダートラック -->
+      <div class="game-slider" id="game-slider">
 
-      <!-- 正解エリア＋選択肢エリア（右カラム） -->
-      <div class="game-body-right">
+        <!-- ページ1：問題文 -->
+        <div class="game-page" id="game-page-0">
+          <div class="problem-statement-card">
+            <div class="problem-statement-label">📝 問題</div>
+            <p class="problem-statement-text" id="game-description">問題の説明</p>
+          </div>
+        </div>
 
-      <!-- 正解エリア -->
-      <div class="answer-section">
-          <div class="zone-label">
-              📋 並び替える
-              <span class="zone-label-hint">タップ移動 / 長押しでドラッグ</span>
+        <!-- ページ2：コード欄 -->
+        <div class="game-page" id="game-page-1">
+          <div class="game-body-right">
+
+            <!-- 正解エリア -->
+            <div class="answer-section">
+                <div class="zone-label">
+                    📋 並び替える
+                    <span class="zone-label-hint">タップ移動 / 長押しでドラッグ</span>
+                  </div>
+              <div id="answer-zone" class="drop-zone"></div>
             </div>
-        <div id="answer-zone" class="drop-zone"></div>
-      </div>
 
-      <!-- 選択肢エリア -->
-      <div class="choices-section">
-          <div class="zone-label">
-              🧩 コードブロック
-              <span class="zone-label-hint">タップ移動 / 長押しでドラッグ</span>
+            <!-- 選択肢エリア -->
+            <div class="choices-section">
+                <div class="zone-label">
+                    🧩 コードブロック
+                    <span class="zone-label-hint">タップ移動 / 長押しでドラッグ</span>
+                  </div>
+              <div id="choices-zone" class="drop-zone"></div>
             </div>
-        <div id="choices-zone" class="drop-zone"></div>
-      </div>
 
-      </div> <!-- /.game-body-right -->
+          </div>
+        </div>
+
+      </div> <!-- /#game-slider -->
 
     </div>
 
@@ -147,6 +161,7 @@
     </div>
 
   </div>
+
 
   <!-- ========== 結果画面 ========== -->
   <div id="result" class="screen">

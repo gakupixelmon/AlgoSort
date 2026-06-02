@@ -35,6 +35,15 @@ const GameEngine = (() => {
   let draggedEl = null;
   let lastDragEndTime = 0;
 
+  // スワイプページ切り替え状態
+  let currentPage = 0;          // 0 = 問題文ページ, 1 = コードページ
+  let sliderEl = null;
+  let sliderSwipeStartX = 0;
+  let sliderSwipeStartY = 0;
+  let sliderDragging = false;
+  let sliderStartTranslate = 0;
+  let pageIndicator = null;
+
   // ======= 初期化 =======
   function init(problem, elements, onClear) {
     currentProblem = problem;
@@ -95,6 +104,132 @@ const GameEngine = (() => {
       giveUpBtn.parentNode.replaceChild(newBtn, giveUpBtn);
       giveUpBtn = newBtn;
       giveUpBtn.addEventListener('click', handleGiveUp);
+    }
+
+    // ⑦ スワイプページ初期化
+    initSwipePages();
+  }
+
+  // ======= スワイプページ切り替え =======
+  function initSwipePages() {
+    sliderEl = document.getElementById('game-slider');
+    pageIndicator = document.getElementById('page-indicator');
+
+    if (!sliderEl) return;
+
+    // ページをリセット（問題文ページから開始）
+    currentPage = 0;
+    applySliderTransform(0, false);
+    updatePageDots(0);
+
+    // ドットのタップでもページ切り替え
+    if (pageIndicator) {
+      pageIndicator.querySelectorAll('.page-dot').forEach((dot) => {
+        dot.addEventListener('click', () => {
+          goToPage(parseInt(dot.dataset.page));
+        });
+      });
+    }
+
+    // 既存のイベントリスナーを除去（ゲーム再スタート時）
+    sliderEl.removeEventListener('touchstart', onSliderTouchStart);
+    sliderEl.removeEventListener('touchmove', onSliderTouchMove);
+    sliderEl.removeEventListener('touchend', onSliderTouchEnd);
+
+    // スマホのみスワイプイベントを登録
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      sliderEl.addEventListener('touchstart', onSliderTouchStart, { passive: true });
+      sliderEl.addEventListener('touchmove', onSliderTouchMove, { passive: false });
+      sliderEl.addEventListener('touchend', onSliderTouchEnd);
+    }
+
+    // リサイズ時にも再適用
+    window.removeEventListener('resize', onSliderResize);
+    window.addEventListener('resize', onSliderResize);
+  }
+
+  function onSliderResize() {
+    applySliderTransform(currentPage, false);
+  }
+
+  function goToPage(page) {
+    currentPage = Math.max(0, Math.min(1, page));
+    applySliderTransform(currentPage, true);
+    updatePageDots(currentPage);
+  }
+
+  function applySliderTransform(page, animate) {
+    if (!sliderEl) return;
+    // スマホのみtransformを適用
+    if (!window.matchMedia('(max-width: 767px)').matches) {
+      sliderEl.style.transform = '';
+      return;
+    }
+    const bodyWidth = sliderEl.parentElement ? sliderEl.parentElement.clientWidth : window.innerWidth;
+    const translateX = -page * bodyWidth;
+    if (!animate) sliderEl.classList.add('dragging');
+    sliderEl.style.transform = `translateX(${translateX}px)`;
+    if (!animate) {
+      // 次フレームでdraggingクラスを削除してtransitionを有効化
+      requestAnimationFrame(() => sliderEl.classList.remove('dragging'));
+    }
+  }
+
+  function updatePageDots(page) {
+    if (!pageIndicator) return;
+    pageIndicator.querySelectorAll('.page-dot').forEach((dot) => {
+      dot.classList.toggle('active', parseInt(dot.dataset.page) === page);
+    });
+  }
+
+  function onSliderTouchStart(e) {
+    // コードブロック上のタッチはスワイプにしない（DnD優先）
+    if (e.target.closest('.code-block') || e.target.closest('.drop-zone')) return;
+    if (e.touches.length !== 1) return;
+    sliderSwipeStartX = e.touches[0].clientX;
+    sliderSwipeStartY = e.touches[0].clientY;
+    sliderStartTranslate = -currentPage * (sliderEl.parentElement ? sliderEl.parentElement.clientWidth : window.innerWidth);
+    sliderDragging = false;
+  }
+
+  function onSliderTouchMove(e) {
+    if (e.touches.length !== 1) return;
+    const dx = e.touches[0].clientX - sliderSwipeStartX;
+    const dy = e.touches[0].clientY - sliderSwipeStartY;
+
+    // 横方向が優勢ならスワイプ（縦スクロールを優先しない）
+    if (!sliderDragging) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      if (Math.abs(dy) > Math.abs(dx)) return; // 縦スクロール優先
+      sliderDragging = true;
+    }
+
+    e.preventDefault();
+    sliderEl.classList.add('dragging');
+    const bodyWidth = sliderEl.parentElement ? sliderEl.parentElement.clientWidth : window.innerWidth;
+    // 端での抵抗感（ラバーバンド）
+    let newTranslate = sliderStartTranslate + dx;
+    const minTranslate = -bodyWidth;
+    const maxTranslate = 0;
+    if (newTranslate > maxTranslate) newTranslate = dx / 4;
+    if (newTranslate < minTranslate) newTranslate = minTranslate + (newTranslate - minTranslate) / 4;
+    sliderEl.style.transform = `translateX(${newTranslate}px)`;
+  }
+
+  function onSliderTouchEnd(e) {
+    sliderEl.classList.remove('dragging');
+    if (!sliderDragging) return;
+    sliderDragging = false;
+
+    const dx = e.changedTouches[0].clientX - sliderSwipeStartX;
+    const threshold = 60; // px
+
+    if (dx < -threshold && currentPage === 0) {
+      goToPage(1); // 右スワイプ→コードページへ
+    } else if (dx > threshold && currentPage === 1) {
+      goToPage(0); // 左スワイプ→問題ページへ
+    } else {
+      goToPage(currentPage); // 元のページに戻す
     }
   }
 

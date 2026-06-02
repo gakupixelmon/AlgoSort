@@ -974,32 +974,94 @@
   }
 }
 
-/* ===== スマホ2カラムレイアウト (max-width: 767px) ===== */
+/* ===== スライダー共通（デスクトップ：スライダー無効） ===== */
+
+/* デスクトップではgame-sliderは普通のflexコンテナとして機能 */
+.game-slider {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+  gap: var(--space-sm);
+}
+
+/* デスクトップではgame-pageは非表示にせず全て表示 */
+.game-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* デスクトップで1ページ目（問題文）は縮小表示 */
+#game-page-0 {
+  flex: 0 0 auto;
+}
+
+/* デスクトップで2ページ目（コード欄）は拡張 */
+#game-page-1 {
+  flex: 1;
+}
+
+/* ページインジケーターはデスクトップでは非表示 */
+.page-indicator {
+  display: none;
+}
+
+/* ===== スマホ：スワイプページ切り替え (max-width: 767px) ===== */
 @media (max-width: 767px) {
-  /* コードブロックのフォントを小さく */
+  /* コードブロックのフォントを少し小さく */
   .block-code {
-    font-size: 10px;
+    font-size: 10.5px;
   }
 
-  /* game-bodyを左右並列に */
+  /* game-bodyはスライダーのビューポートとして機能 */
   .game-body {
-    flex-direction: row;
     overflow: hidden;
-    padding: var(--space-xs) var(--space-sm);
+    padding: 0;
+    position: relative;
   }
 
-  /* 左ページ：問題文カード */
-  .game-body > .problem-statement-card {
-    flex: 0 0 36%;
-    max-width: 36%;
-    overflow-y: auto;
+  /* スライダートラック：横に2ページ並べる */
+  .game-slider {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    width: 200%;           /* 2ページ分の幅 */
+    gap: 0;
+    overflow: visible;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+  }
+
+  /* 各ページは親（game-body）の幅の半分（= 画面1枚分） */
+  .game-page {
+    flex: 0 0 50%;
+    width: 50%;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    border-radius: var(--radius-md);
-    flex-shrink: 0;
+    min-height: 0;
+    padding: var(--space-sm);
+    box-sizing: border-box;
   }
 
-  /* 右カラム：コードゾーンをまとめるラッパー */
+  /* ページ1：問題文はフルスクロール可能 */
+  #game-page-0 .problem-statement-card {
+    flex: 1;
+    overflow-y: auto;
+    max-height: none;
+  }
+
+  #game-page-0 .problem-statement-text {
+    max-height: none;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  /* ページ2：コード欄 */
   .game-body-right {
     flex: 1;
     display: flex;
@@ -1009,15 +1071,34 @@
     gap: var(--space-xs);
   }
 
-  /* 問題文カード内のテキストの最大高制限解除 */
-  .problem-statement-text {
-    max-height: none;
-    font-size: 11px;
+  /* ページインジケーター：スマホのみ表示 */
+  .page-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    margin-left: auto;
+    padding-right: 4px;
   }
 
-  /* 問題文カードのラベル */
-  .problem-statement-label {
-    font-size: 10px;
+  .page-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.25s ease;
+    cursor: pointer;
+  }
+
+  .page-dot.active {
+    background: var(--accent-purple);
+    width: 18px;
+    border-radius: 3px;
+  }
+
+  /* スライダーがドラッグ中はtransition無効（リアルタイム追従） */
+  .game-slider.dragging {
+    transition: none;
   }
 }
 
