@@ -480,6 +480,16 @@
   min-height: 0;
 }
 
+/* 右カラムラッパー（デスクトップでは縦に並ぶ） */
+.game-body-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+  gap: var(--space-sm);
+}
+
 /* 正解エリア */
 .zone-label {
   font-size: 11px;
@@ -789,6 +799,28 @@
   transform: translateY(0);
 }
 
+/* 諦めるボタン */
+#give-up-btn {
+  flex: 0 0 auto;
+  background: transparent;
+  border: 1px solid rgba(239,68,68,0.4);
+  color: #f87171;
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+#give-up-btn:hover {
+  background: rgba(239,68,68,0.1);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
 /* ===== 結果画面 ===== */
 .result-container {
   display: flex;
@@ -939,6 +971,53 @@
     width: auto;
     flex: 1;
     min-width: 140px;
+  }
+}
+
+/* ===== スマホ2カラムレイアウト (max-width: 767px) ===== */
+@media (max-width: 767px) {
+  /* コードブロックのフォントを小さく */
+  .block-code {
+    font-size: 10px;
+  }
+
+  /* game-bodyを左右並列に */
+  .game-body {
+    flex-direction: row;
+    overflow: hidden;
+    padding: var(--space-xs) var(--space-sm);
+  }
+
+  /* 左ページ：問題文カード */
+  .game-body > .problem-statement-card {
+    flex: 0 0 36%;
+    max-width: 36%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+  }
+
+  /* 右カラム：コードゾーンをまとめるラッパー */
+  .game-body-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+    gap: var(--space-xs);
+  }
+
+  /* 問題文カード内のテキストの最大高制限解除 */
+  .problem-statement-text {
+    max-height: none;
+    font-size: 11px;
+  }
+
+  /* 問題文カードのラベル */
+  .problem-statement-label {
+    font-size: 10px;
   }
 }
 

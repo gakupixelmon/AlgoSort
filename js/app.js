@@ -254,6 +254,7 @@ const App = (() => {
         hintBtn: document.getElementById('hint-btn'),
         hintText: document.getElementById('hint-text'),
         checkBtn: document.getElementById('check-btn'),
+        giveUpBtn: document.getElementById('give-up-btn'),
       },
       (result) => {
         const newStreak = Storage.recordClear(problem.id);

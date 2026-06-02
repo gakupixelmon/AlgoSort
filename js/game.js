@@ -12,12 +12,12 @@ const GameEngine = (() => {
   let startTime = null;
   let onClearCallback = null;
 
-  // DOM参照
   let answerZone = null;
   let choicesZone = null;
   let hintBtn = null;
   let hintText = null;
   let checkBtn = null;
+  let giveUpBtn = null;
 
   // タッチDnD用状態
   let draggingEl = null;
@@ -47,6 +47,7 @@ const GameEngine = (() => {
     hintBtn = elements.hintBtn;
     hintText = elements.hintText;
     checkBtn = elements.checkBtn;
+    giveUpBtn = elements.giveUpBtn;
 
     answerZone.innerHTML = '';
     choicesZone.innerHTML = '';
@@ -86,6 +87,14 @@ const GameEngine = (() => {
       checkBtn.parentNode.replaceChild(newBtn, checkBtn);
       checkBtn = newBtn;
       checkBtn.addEventListener('click', checkAnswer);
+    }
+
+    // ⑥ 諦めるボタン（重複登録防止）
+    if (giveUpBtn) {
+      const newBtn = giveUpBtn.cloneNode(true);
+      giveUpBtn.parentNode.replaceChild(newBtn, giveUpBtn);
+      giveUpBtn = newBtn;
+      giveUpBtn.addEventListener('click', handleGiveUp);
     }
   }
 
@@ -515,6 +524,13 @@ const GameEngine = (() => {
     }
   }
 
+  // ======= 諦める =======
+  function handleGiveUp() {
+    if (!currentProblem) return;
+    if (!window.confirm('本当に諦めますか？\n答えが表示されます。')) return;
+    showSolutionModal(currentProblem, '諦', 0, 0, true);
+  }
+
   function checkAnswer() {
     const answerBlocks = getAnswerBlocks();
     if (answerBlocks.length === 0) {
@@ -552,7 +568,7 @@ const GameEngine = (() => {
   }
 
   // ======= 正解後ソリューションモーダル =======
-  function showSolutionModal(problem, score, elapsed, hints) {
+  function showSolutionModal(problem, score, elapsed, hints, isGiveUp = false) {
     const existing = document.getElementById('solution-modal');
     if (existing) existing.remove();
 
@@ -602,15 +618,17 @@ const GameEngine = (() => {
       ...orderedBlocks.map((b) => b.code),
     ];
 
-    const scoreColors = { S: '#fbbf24', A: '#34d399', B: '#60a5fa', C: '#a78bfa' };
+    const scoreColors = { S: '#fbbf24', A: '#34d399', B: '#60a5fa', C: '#a78bfa', '諦': '#ef4444' };
     const scoreColor = scoreColors[score] || '#fff';
     const scoreMessages = {
       S: '完璧！ヒントなしでクリア！🎉',
       A: 'Great！1ヒントでクリア！👏',
       B: 'Good！2ヒントでクリア！',
       C: 'クリア！次回はヒント少なく！',
+      '諦': '諦めた…答えを確認して次回に挑戦！💪',
     };
     const langLabel = problem.language === 'cpp' ? 'C++' : problem.language.toUpperCase();
+    const nextBtnLabel = isGiveUp ? '🏠 ホームに戻る' : '▶ 結果を見る';
 
     // 解説セクションのHTML（explanationが存在する場合のみ）
     const exp = problem.explanation;
@@ -662,7 +680,7 @@ const GameEngine = (() => {
         </div>
         ${explanationHtml}
         <div class="solution-modal-footer">
-          <button id="solution-next-btn" class="btn btn-primary">▶ 結果を見る</button>
+          <button id="solution-next-btn" class="btn btn-primary">${nextBtnLabel}</button>
         </div>
       </div>
     `;
@@ -702,7 +720,12 @@ const GameEngine = (() => {
       modal.classList.remove('visible');
       setTimeout(() => {
         modal.remove();
-        if (onClearCallback) onClearCallback({ score, hintsUsed: hints, elapsed });
+        if (isGiveUp) {
+          // 諦めた場合は結果画面に行かずホームへ
+          if (window.App && window.App.navigateTo) window.App.navigateTo('home');
+        } else {
+          if (onClearCallback) onClearCallback({ score, hintsUsed: hints, elapsed });
+        }
       }, 300);
     });
   }
