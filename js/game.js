@@ -882,9 +882,11 @@ const GameEngine = (() => {
     hintsUsed++;
 
     if (hintText) {
-      hintText.textContent = `💡 ヒント ${hintsUsed}: ${hint}`;
-      hintText.classList.add('hint-appear');
-      setTimeout(() => hintText.classList.remove('hint-appear'), 500);
+      const item = document.createElement('div');
+      item.className = 'hint-item hint-appear';
+      item.textContent = `💡 ヒント ${hintsUsed}: ${hint}`;
+      hintText.appendChild(item);
+      setTimeout(() => item.classList.remove('hint-appear'), 500);
     }
     updateHintButton();
   }

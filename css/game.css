@@ -752,18 +752,31 @@
 }
 
 #hint-text {
-  font-size: 13px;
-  color: var(--accent-orange);
-  padding: var(--space-sm) var(--space-md);
-  background: rgba(245,158,11,0.08);
-  border: 1px solid rgba(245,158,11,0.2);
-  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   min-height: 0;
   transition: var(--transition);
 }
 
 #hint-text:empty {
   display: none;
+}
+
+/* 各ヒントアイテム */
+.hint-item {
+  font-size: 13px;
+  color: var(--accent-orange);
+  padding: var(--space-sm) var(--space-md);
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: var(--radius-md);
+  line-height: 1.5;
+}
+
+/* 2つ目以降は少し薄くして最新ヒントを強調 */
+.hint-item:not(:last-child) {
+  opacity: 0.55;
 }
 
 .hint-appear {
