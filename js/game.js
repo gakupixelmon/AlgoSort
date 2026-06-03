@@ -50,6 +50,7 @@ const GameEngine = (() => {
   let sliderDragging = false;
   let sliderStartTranslate = 0;
   let pageIndicator = null;
+  let pageTabs = null;          // PC版タブコンテナ
 
   // ======= 初期化 =======
   function init(problem, elements, onClear) {
@@ -143,6 +144,7 @@ const GameEngine = (() => {
   function initSwipePages() {
     sliderEl = document.getElementById('game-slider');
     pageIndicator = document.getElementById('page-indicator');
+    pageTabs = document.getElementById('page-tabs');
 
     if (!sliderEl) return;
 
@@ -150,12 +152,23 @@ const GameEngine = (() => {
     currentPage = 0;
     applySliderTransform(0, false);
     updatePageDots(0);
+    updatePageTabs(0);
+    updatePageVisibility(0);
 
     // ドットのタップでもページ切り替え
     if (pageIndicator) {
       pageIndicator.querySelectorAll('.page-dot').forEach((dot) => {
         dot.addEventListener('click', () => {
           goToPage(parseInt(dot.dataset.page));
+        });
+      });
+    }
+
+    // PC版タブのクリックイベント
+    if (pageTabs) {
+      pageTabs.querySelectorAll('.page-tab').forEach((tab) => {
+        tab.addEventListener('click', () => {
+          goToPage(parseInt(tab.dataset.page));
         });
       });
     }
@@ -179,12 +192,33 @@ const GameEngine = (() => {
 
   function onSliderResize() {
     applySliderTransform(currentPage, false);
+    // リサイズ時にPC/スマホ切り替えに対応
+    updatePageVisibility(currentPage);
   }
 
   function goToPage(page) {
     currentPage = Math.max(0, Math.min(1, page));
     applySliderTransform(currentPage, true);
     updatePageDots(currentPage);
+    updatePageTabs(currentPage);
+    updatePageVisibility(currentPage);
+  }
+
+  // デスクトップ用: game-page の active クラスを切り替える
+  function updatePageVisibility(page) {
+    if (window.matchMedia('(max-width: 767px)').matches) return;
+    if (!sliderEl) return;
+    sliderEl.querySelectorAll('.game-page').forEach((pageEl, idx) => {
+      pageEl.classList.toggle('active', idx === page);
+    });
+  }
+
+  // PC版タブのアクティブ状態を更新
+  function updatePageTabs(page) {
+    if (!pageTabs) return;
+    pageTabs.querySelectorAll('.page-tab').forEach((tab) => {
+      tab.classList.toggle('active', parseInt(tab.dataset.page) === page);
+    });
   }
 
   function applySliderTransform(page, animate) {
