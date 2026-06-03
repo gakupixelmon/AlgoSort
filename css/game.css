@@ -1065,6 +1065,14 @@
 }
 
 
+/* PC用タブボタン・ページインジケーターのデフォルト（メディアクエリより前に記述することで上書き順序を正しく保つ） */
+.page-tabs {
+  display: none;
+}
+.page-indicator {
+  display: none;
+}
+
 /* ===== スライダー共通（デスクトップ：スライダー無効） ===== */
 
 /* デスクトップでgame-slidersaは普通のflexコンテナとして機能 */
@@ -1101,15 +1109,6 @@
   flex: 1;
 }
 
-/* PC用タブボタン（デスクトップのみ表示） */
-.page-tabs {
-  display: none;
-}
-
-/* ページインジケーターはデスクトップでは非表示 */
-.page-indicator {
-  display: none;
-}
 
 /* ===== スマホ：スワイプページ切り替え (max-width: 767px) ===== */
 @media (max-width: 767px) {
