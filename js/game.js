@@ -590,13 +590,12 @@ const GameEngine = (() => {
       return;
     }
 
-    // クローン後処理
+    // 元のゾーンを記録（targetZone が null の場合に戻す先として使用）
+    const originalZone = draggingEl.parentElement;
+
+    // ① クローンを先に削除してから elementFromPoint を呼ぶ
+    //   （クローンが残っているとヒットテストに干渉してドロップ先を誤検出する）
     if (dragClone) {
-      dragClone.style.pointerEvents = 'none';
-    }
-    const elUnder = document.elementFromPoint(touch.clientX, touch.clientY);
-    if (dragClone) {
-      dragClone.style.pointerEvents = '';
       document.body.removeChild(dragClone);
       dragClone = null;
     }
@@ -604,15 +603,21 @@ const GameEngine = (() => {
     draggingEl.classList.remove('dragging');
     document.querySelectorAll('.drop-zone').forEach((z) => z.classList.remove('drag-over'));
 
-    // 通常ドラッグ終了：ドロップ先ゾーンに配置
+    // ② クローン削除後に指の位置のドロップ先を特定
+    const elUnder = document.elementFromPoint(touch.clientX, touch.clientY);
     const targetZone = elUnder ? elUnder.closest('.drop-zone') : null;
+
     if (targetZone) {
+      // ③ ドロップ先ゾーンに配置
       const afterEl = getTouchAfterElement(targetZone, touch.clientY);
       if (afterEl == null) {
         targetZone.appendChild(draggingEl);
       } else {
         targetZone.insertBefore(draggingEl, afterEl);
       }
+    } else if (originalZone) {
+      // ④ ゾーン外にドロップした場合は元のゾーンに戻す（dragging クラスが外れた状態で残らないようにする）
+      originalZone.appendChild(draggingEl);
     }
 
     draggingEl = null;
