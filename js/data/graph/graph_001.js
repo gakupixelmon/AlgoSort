@@ -11,6 +11,13 @@
   difficulty: 2,
   language: 'cpp',
   description: '【幅優先探索（BFS）とは】迷路の出口を探すとき、「入口から距離1のマスを全部調べてから、距離2のマスを調べる…」という層ごとに広がっていく探索方法です。キュー（待ち行列）を使い、近いところから順番に確認していきます。「最短で何ステップか」を知りたい問題に特に向いています。\n\nグラフの幅優先探索（BFS）を実装せよ。キュー（queue）を使い、始点 start から到達可能な全ノードを層ごとに探索する。各ノードの訪問済みフラグを管理して無限ループを防ぐこと。',
+  inputFormat: {
+    params: [
+      { name: 'graph', type: 'vector<vector<int>>&', desc: '隣接リスト表現のグラフ（graph[v] = v の隣接ノードリスト）' },
+      { name: 'start', type: 'int', desc: 'BFS を開始するノード番号' },
+    ],
+    note: '戻り値: void（処理は内部で完結）\n制約: 1 ≤ V ≤ 10^5、0 ≤ E ≤ 10^5',
+  },
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [
     { id: 0,  code: 'void bfs(vector<vector<int>>& graph, int start) {' },

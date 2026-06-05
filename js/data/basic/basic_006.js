@@ -8,6 +8,12 @@
   difficulty: 3,
   language: 'cpp',
   description: '【問題】\nN 個の会議 i がある。それぞれ開始時刻 s[i]、終了時刻 e[i] を持つ。\n会議室は 1 つしかなく、同時に複数の会議は開催できない（終了時刻 = 次の会議の開始時刻は OK）。\n開催できる会議の最大数を求めよ。\n\n【制約】\n・N ≤ 10^5\n・0 ≤ s[i] < e[i] ≤ 10^9\n\n【ポイント】\n「終了時刻が早い会議を優先して選ぶ」という貪欲戦略が最適解を与える。\nsort で終了時刻順に並べ、現在の終了時刻以降に始まる会議を選ぶだけでよい。',
+  inputFormat: {
+    params: [
+      { name: 'meetings', type: 'vector<pair<int,int>>&', desc: '各会議の {開始時刻, 終了時刻} のペア配列' },
+    ],
+    note: '戻り値: int（開催可能な会議の最大数）\n制約: 1 ≤ N ≤ 10^5、0 ≤ s[i] < e[i] ≤ 10^9',
+  },
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [
     { id: 0, code: 'int schedule(vector<pair<int,int>>& meetings) {' },

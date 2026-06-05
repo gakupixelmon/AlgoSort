@@ -8,6 +8,15 @@
   difficulty: 2,
   language: 'python',
   description: '【深さ優先探索（DFS）とは】迷路を探索するとき「一本道を行けるところまで進み、行き止まりになったら1つ前の分岐に戻る」という方法です。Pythonでは再帰関数として実装するのが一般的です。\n\nPythonでDFSを書くときの注意：デフォルト引数に list や set などの可変オブジェクトを直接書くと、呼び出し間で意図せず共有されるバグが発生します。そのため visited=None と書いて関数内で初期化するのが正しいパターンです。\n\nグラフの深さ優先探索（DFS）をPythonで再帰を使って実装せよ。訪問順のリストを返す。visited を set で管理してサイクルを防ぐこと。',
+  inputFormat: {
+    params: [
+      { name: 'graph', type: 'dict[int, list[int]]', desc: '隣接リスト表現のグラフ（graph[v] = v の隣接ノードリスト）' },
+      { name: 'node', type: 'int', desc: '現在処理中のノード番号（最初は始点を指定）' },
+      { name: 'visited', type: 'set | None', desc: '訪問済みノードの集合（初回は省略可、内部で初期化）' },
+      { name: 'order', type: 'list | None', desc: '訪問順リスト（初回は省略可、内部で初期化）' },
+    ],
+    note: '戻り値: list[int]（訪問順のノードリスト）\n制約: 1 ≤ V ≤ 10^4（再帰上限に注意）',
+  },
   blocks: [
     { id: 0,  code: 'def dfs(graph, node, visited=None, order=None):' },
     { id: 1,  code: '    if visited is None:' },

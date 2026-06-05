@@ -8,6 +8,12 @@
   difficulty: 2,
   language: 'cpp',
   description: '【選択ソートとは】未整列の部分から「一番小さい値」を探し出して先頭に持ってくる、という操作を繰り返すことで配列を整列させる方法です。トランプを並べ替えるとき「残りの手札から一番小さいカードを選んで左端に置く」動作と同じです。\n\n配列 arr を選択ソートで昇順に並び替えよ。\n未ソート部分の最小値を見つけて先頭と交換することを繰り返すアルゴリズム。\n外側ループで「今確定する位置 i」を左から右へ移動し、内側ループで位置 i 以降の最小値のインデックス minIdx を探す。',
+  inputFormat: {
+    params: [
+      { name: 'arr', type: 'vector<int>&', desc: '並び替え対象の整数配列（参照渡し）' },
+    ],
+    note: '戻り値: void（arr を直接変更する）\n制約: 1 ≤ N ≤ 10^4',
+  },
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [
     { id: 0, code: 'void selection_sort(vector<int>& arr) {' },

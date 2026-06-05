@@ -8,6 +8,12 @@
   difficulty: 1,
   language: 'cpp',
   description: '【バブルソートとは】隣り合う2つの数を比べて、大きい方を右に移動させる操作を繰り返すことで、配列を小さい順に並べる方法です。1回のパスが終わるたびに「その時点での最大値」が末尾に確定し、泡が水中を浮き上がるように大きな値が右端へ移動していくことが名前の由来です。\n\n配列 arr をバブルソートで昇順に並び替えよ。隣接する要素を比較・交換を繰り返すことで最大値が末尾に「浮き上がる」O(N²) アルゴリズム。',
+  inputFormat: {
+    params: [
+      { name: 'arr', type: 'vector<int>&', desc: '並び替え対象の整数配列（参照渡し）' },
+    ],
+    note: '戻り値: void（arr を直接変更する）\n制約: 1 ≤ N ≤ 10^4',
+  },
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [
     { id: 0, code: 'void bubble_sort(vector<int>& arr) {' },

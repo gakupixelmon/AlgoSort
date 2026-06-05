@@ -7,6 +7,14 @@
   difficulty: 2,
   language: 'python',
   description: '【ニューラルネットワーク 順伝播とは】人間の脳の神経細胞（ニューロン）を模倣した計算モデルです。入力データ（例：画像のピクセル値）に重み行列 W を掛けて足し合わせ（線形変換）、その結果をシグモイド関数などの「活性化関数」に通すことで非線形な表現を学習できます。これを複数の層で繰り返して出力（予測）を得る計算が「順伝播（Forward Pass）」です。\n\nNumPy を使って2層ニューラルネットワークの順伝播（Forward Pass）を実装せよ。シグモイド関数を活性化関数として使用し、入力 X から出力 A2 を計算する。',
+  inputFormat: {
+    params: [
+      { name: 'X', type: 'np.ndarray', desc: '入力データ（shape: [バッチ数, 入力次元数]）' },
+      { name: 'W1, b1', type: 'np.ndarray', desc: '第1層の重み行列とバイアスベクトル' },
+      { name: 'W2, b2', type: 'np.ndarray', desc: '第2層の重み行列とバイアスベクトル' },
+    ],
+    note: '戻り値: np.ndarray（出力 A2、shape: [バッチ数, 出力次元数]、値域 (0, 1)）\nピン留め: import numpy as np',
+  },
   pinnedCode: ['import numpy as np'],
   blocks: [
     { id: 0, code: 'def sigmoid(x):' },

@@ -10,6 +10,14 @@
   difficulty: 4,
   language: 'cpp',
   description: '【ダイクストラ法とは】地図上の最短経路を求めるアルゴリズムです。カーナビの経路探索でも使われています。「まだ確定していない頂点のうち、スタートから最も近い頂点を選んで確定する」という操作を繰り返すことで、全ての頂点への最短距離を求めます。優先度付きキュー（ヒープ）を使うと高速に動作します。ただし、負のコストを持つ辺には使えません。\n\n優先度付きキュー（priority_queue）を使ってダイクストラ法を実装せよ。有向重み付きグラフにおいて、始点 start から全ノードへの最短距離を dist[] に記録する。グラフは隣接リスト形式（pair<ノード番号,重み>）。INT_MAX で未到達を表現し、キューから取り出したコストが dist より大きい場合はスキップする（遅延削除）。',
+  inputFormat: {
+    params: [
+      { name: 'graph', type: 'vector<vector<pair<int,int>>>&', desc: '隣接リスト（graph[v] = {next, weight} のリスト）' },
+      { name: 'start', type: 'int', desc: '始点ノード番号' },
+      { name: 'dist', type: 'vector<int>&', desc: '各ノードへの最短距離を格納する配列（出力用）' },
+    ],
+    note: '戻り値: void（dist[] に結果を書き込む）\n制約: 1 ≤ V ≤ 10^5、1 ≤ E ≤ 2×10^5、重み ≥ 0',
+  },
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [
     { id: 0,  code: 'void dijkstra(vector<vector<pair<int,int>>>& graph, int start, vector<int>& dist) {' },

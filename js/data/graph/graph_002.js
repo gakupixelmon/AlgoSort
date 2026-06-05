@@ -8,6 +8,13 @@
   difficulty: 2,
   language: 'python',
   description: '【幅優先探索（BFS）とは】迷路の出口を探すとき、「入口から距離1のマスを全部調べてから、距離2のマスを調べる…」という層ごとに広がっていく探索方法です。「最短で何ステップか」を知りたい問題に特に向いています。PythonではC++の queue の代わりに collections.deque を使うのが定番です。\n\nグラフの幅優先探索（BFS）をPythonで実装せよ。deque を使い、始点 start から到達可能な全ノードを層ごとに探索し、訪問順のリストを返す。',
+  inputFormat: {
+    params: [
+      { name: 'graph', type: 'dict[int, list[int]]', desc: '隣接リスト表現のグラフ（graph[v] = v の隣接ノードリスト）' },
+      { name: 'start', type: 'int', desc: 'BFS を開始するノード番号' },
+    ],
+    note: '戻り値: list[int]（訪問順のノードリスト）\n制約: 1 ≤ V ≤ 10^5、0 ≤ E ≤ 10^5',
+  },
   pinnedCode: ['from collections import deque'],
   blocks: [
     { id: 0,  code: 'def bfs(graph, start):' },

@@ -446,8 +446,8 @@
   border: 1px solid rgba(124,58,237,0.4);
   border-left: 4px solid var(--accent-purple);
   border-radius: var(--radius-lg);
-  padding: var(--space-sm) var(--space-md);
-  flex-shrink: 0; /* 問題文エリアは縮まないよう固定 */
+  padding: var(--space-md) var(--space-lg);
+  flex-shrink: 0;
 }
 
 .problem-statement-label {
@@ -456,17 +456,93 @@
   color: var(--accent-purple);
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  margin-bottom: 4px;
+  margin-bottom: var(--space-sm);
 }
 
 .problem-statement-text {
   font-size: 13px;
   font-weight: 500;
   color: var(--text-primary);
-  line-height: 1.6;
-  max-height: 80px;
-  overflow-y: auto;
+  line-height: 1.65;
   white-space: pre-wrap; /* \n を改行として表示 */
+}
+
+/* ===== 入力形式カード ===== */
+.input-format-card {
+  background: linear-gradient(135deg, rgba(34,211,238,0.08), rgba(37,99,235,0.05));
+  border: 1px solid rgba(34,211,238,0.3);
+  border-left: 4px solid var(--accent-cyan);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md) var(--space-lg);
+  margin-top: var(--space-sm);
+  flex-shrink: 0;
+}
+
+.input-format-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: var(--space-sm);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.input-format-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.input-format-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.input-format-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  background: rgba(34,211,238,0.1);
+  border: 1px solid rgba(34,211,238,0.25);
+  border-radius: var(--radius-sm);
+  padding: 1px 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.input-format-type {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #fbbf24;
+  background: rgba(251,191,36,0.08);
+  border: 1px solid rgba(251,191,36,0.2);
+  border-radius: var(--radius-sm);
+  padding: 1px 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.input-format-desc {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.input-format-note {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: var(--space-xs) var(--space-sm);
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--radius-sm);
+  border-left: 2px solid var(--border);
+  line-height: 1.55;
+  white-space: pre-wrap;
 }
 
 /* ゲームボディ：overflow:hiddenで全体スクロールを抑止し flex で高さを制御 */
@@ -478,6 +554,7 @@
   gap: var(--space-sm);
   overflow: hidden;
   min-height: 0;
+  height: 0; /* flex item として正確に高さを計算させる */
 }
 
 /* 右カラムラッパー（デスクトップでは縦に並ぶ） */
@@ -1071,7 +1148,7 @@
 
 /* ===== スライダー共通（デスクトップ：スライダー無効） ===== */
 
-/* デスクトップでgame-slidersaは普通のflexコンテナとして機能 */
+/* デスクトップでgame-sliderは普通のflexコンテナとして機能 */
 .game-slider {
   flex: 1;
   display: flex;
@@ -1079,6 +1156,7 @@
   overflow: hidden;
   min-height: 0;
   gap: var(--space-sm);
+  height: 100%; /* 親の高さをフルで使う */
 }
 
 /* デスクトップではタブで切り替えるため、デフォルトでgame-pageは非表示 */
@@ -1093,6 +1171,9 @@
 /* アクティブページのみ表示 */
 .game-page.active {
   display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
 }
 
 /* デスクトップで初期表示は1ページ目（問題文） */
@@ -1100,7 +1181,12 @@
   flex: 1;
 }
 
-/* デスクトップて2ページ目（コード欄）は拡張 */
+/* 問題ページの内部：スクロール可能なコンテンツエリア */
+#game-page-0.active {
+  overflow-y: auto;
+}
+
+/* デスクトップで2ページ目（コード欄）は拡張 */
 #game-page-1 {
   flex: 1;
 }

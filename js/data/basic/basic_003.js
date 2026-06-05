@@ -10,6 +10,13 @@
   difficulty: 2,
   language: 'cpp',
   description: '【二分探索とは】辞書で単語を探すとき、真ん中のページを開いて「目的の単語より前か後ろか」を判断し、半分ずつ範囲を絞り込む方法のことです。1000個の要素でも最大10回の比較（log₂1000 ≈ 10）で答えが見つかる、非常に効率的なアルゴリズムです。ただし、必ず「ソート済みの配列」に対してのみ使えます。\n\nソート済み配列に対して二分探索を行い、target の添字を返せ。見つからなければ -1 を返す。比較のたびに探索範囲を半分に絞るため O(log N) で動作する。',
+  inputFormat: {
+    params: [
+      { name: 'arr', type: 'vector<int>&', desc: 'ソート済みの整数配列（昇順）' },
+      { name: 'target', type: 'int', desc: '探したい値' },
+    ],
+    note: '戻り値: int（見つかった場合はインデックス、見つからなければ -1）\n制約: 1 ≤ N ≤ 10^6',
+  },
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [
     { id: 0,  code: 'int binary_search(vector<int>& arr, int target) {' },

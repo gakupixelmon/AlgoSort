@@ -8,6 +8,15 @@
   difficulty: 4,
   language: 'cpp',
   description: '【ナップサック問題とは】旅行で荷物をリュック（ナップサック）に詰めるとき、「重さの制限内で、価値の合計が最大になるように品物を選ぶ」という問題です。全ての組み合わせを試すと指数時間かかりますが、DP（動的計画法）を使うと「重さ上限 j のとき i 番目まで考えたときの最大価値」を表に記録することで劇的に高速化できます。\n\nN 個の品物があり、それぞれ重さ w[i]・価値 v[i] を持つ。容量 W のナップサックに入れる品物を選び、価値の合計を最大化せよ（各品物は1個まで）。dp[i][j] = 「i 番目までの品物を考え、重さ上限 j のとき達成できる最大価値」として DP せよ。',
+  inputFormat: {
+    params: [
+      { name: 'N', type: 'int', desc: '品物の個数' },
+      { name: 'W', type: 'int', desc: 'ナップサックの容量（最大積載重量）' },
+      { name: 'w', type: 'vector<int>&', desc: '各品物の重さ配列（w[i] は i 番目の品物の重さ）' },
+      { name: 'v', type: 'vector<int>&', desc: '各品物の価値配列（v[i] は i 番目の品物の価値）' },
+    ],
+    note: '戻り値: int（選んだ品物の価値の最大合計）\n制約: 1 ≤ N ≤ 100、1 ≤ W ≤ 10^4、1 ≤ w[i], v[i] ≤ 10^3',
+  },
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [
     { id: 0,  code: 'int knapsack(int N, int W, vector<int>& w, vector<int>& v) {' },

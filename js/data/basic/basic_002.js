@@ -7,6 +7,12 @@
   difficulty: 1,
   language: 'python',
   description: '【バブルソートとは】隣り合う2つの数を比べて、大きい方を右に移動させる操作を繰り返すことで、配列を小さい順に並べる方法です。泡が浮かび上がるように大きな値が末尾へ移動していく、プログラミング学習の入門アルゴリズムです。\n\n配列 arr をバブルソートで昇順に並び替えよ。Python で隣接要素の比較・交換を繰り返し実装する。',
+  inputFormat: {
+    params: [
+      { name: 'arr', type: 'list[int]', desc: '並び替え対象の整数リスト' },
+    ],
+    note: '戻り値: list[int]（ソート済みリストを return）\n制約: 1 ≤ len(arr) ≤ 10^4',
+  },
   blocks: [
     { id: 0, code: 'def bubble_sort(arr):' },
     { id: 1, code: '    n = len(arr)' },

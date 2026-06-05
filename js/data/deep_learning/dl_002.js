@@ -7,6 +7,16 @@
   difficulty: 3,
   language: 'python',
   description: '【勾配降下法とは】山を下りるときに「今いる場所で一番急な下り坂の方向に少しだけ進む」を繰り返すことで谷底（損失が最小の点）に到達する方法です。ニューラルネットワークの「学習」とは、この方法で重みパラメータを少しずつ調整していく作業のことです。\n\n学習の1ステップは「①順伝播で予測 → ②予測と正解の誤差（損失）を計算 → ③逆伝播で各パラメータへの影響度（勾配）を計算 → ④勾配の逆方向にパラメータを更新」という流れです。\n\n勾配降下法を使ってニューラルネットワークのパラメータを更新せよ。\n\n以下の独自関数がすでに実装済みとして使用できる：\n・forward_pass(X, W1, b1, W2, b2) → (A2, cache): 順伝播を実行し出力と中間値キャッシュを返す\n・compute_loss(A2, y) → loss: 予測値A2と正解ラベルyから損失値（誤差）を計算する\n・backward_pass(A2, y, cache) → grads: 逆伝播で各パラメータの勾配辞書{"dW1","db1","dW2","db2"}を返す\n\nこれらを使って、gradient_descent関数と1ステップ分の学習処理train_stepを実装せよ。',
+  inputFormat: {
+    params: [
+      { name: 'X', type: 'np.ndarray', desc: '入力データバッチ（shape: [バッチ数, 入力次元数]）' },
+      { name: 'y', type: 'np.ndarray', desc: '正解ラベル（shape: [バッチ数, 出力次元数]）' },
+      { name: 'W1, b1', type: 'np.ndarray', desc: '第1層の重み行列とバイアス' },
+      { name: 'W2, b2', type: 'np.ndarray', desc: '第2層の重み行列とバイアス' },
+      { name: 'lr', type: 'float', desc: '学習率（Learning Rate）、例: 0.01' },
+    ],
+    note: '戻り値: (W1, b1, W2, b2, loss)（更新後パラメータと損失値）',
+  },
   blocks: [
     { id: 0,  code: 'def gradient_descent(W, b, dW, db, lr):' },
     { id: 1,  code: '    W = W - lr * dW' },

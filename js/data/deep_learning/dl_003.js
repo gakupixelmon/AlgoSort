@@ -8,6 +8,15 @@
   difficulty: 3,
   language: 'python',
   description: '【ReLU活性化関数とは】sigmoid は大きな値で勾配が消えてしまう「勾配消失問題」を起こしやすいという弱点があります。ReLU（Rectified Linear Unit）は f(x) = max(0, x) という超シンプルな関数で、この問題を大幅に軽減しました。現代のニューラルネットワークでは隠れ層に ReLU を、出力層に sigmoid または softmax を使うのが標準的なパターンです。\n\nNumPy を使って3層ニューラルネットワーク（入力層→隠れ層→隠れ層→出力層）の順伝播を実装せよ。隠れ層の活性化関数に ReLU、出力層の活性化関数に sigmoid を使用する。',
+  inputFormat: {
+    params: [
+      { name: 'X', type: 'np.ndarray', desc: '入力データ（shape: [バッチ数, 入力次元数]）' },
+      { name: 'W1, b1', type: 'np.ndarray', desc: '第1層（入力→隠れ層1）の重みとバイアス' },
+      { name: 'W2, b2', type: 'np.ndarray', desc: '第2層（隠れ層1→隠れ層2）の重みとバイアス' },
+      { name: 'W3, b3', type: 'np.ndarray', desc: '第3層（隠れ層2→出力層）の重みとバイアス' },
+    ],
+    note: '戻り値: np.ndarray（出力 A3、値域 (0, 1)）\n隠れ層: ReLU、出力層: sigmoid\nピン留め: import numpy as np',
+  },
   pinnedCode: ['import numpy as np'],
   blocks: [
     { id: 0, code: 'def relu(x):' },

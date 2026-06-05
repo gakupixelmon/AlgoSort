@@ -228,6 +228,36 @@ const App = (() => {
     document.getElementById('game-difficulty').textContent =
       '★'.repeat(problem.difficulty) + '☆'.repeat(5 - problem.difficulty);
 
+    // 入力形式の表示
+    const inputFormatCard = document.getElementById('input-format-card');
+    const inputFormatContent = document.getElementById('input-format-content');
+    if (inputFormatCard && inputFormatContent) {
+      if (problem.inputFormat && problem.inputFormat.params && problem.inputFormat.params.length > 0) {
+        inputFormatContent.innerHTML = '';
+        // 各パラメータ行を生成
+        problem.inputFormat.params.forEach((param) => {
+          const row = document.createElement('div');
+          row.className = 'input-format-row';
+          row.innerHTML = `
+            <span class="input-format-name">${escapeHtml(param.name)}</span>
+            <span class="input-format-type">${escapeHtml(param.type)}</span>
+            <span class="input-format-desc">${escapeHtml(param.desc)}</span>
+          `;
+          inputFormatContent.appendChild(row);
+        });
+        // 補足ノート（constraints等）
+        if (problem.inputFormat.note) {
+          const note = document.createElement('div');
+          note.className = 'input-format-note';
+          note.textContent = problem.inputFormat.note;
+          inputFormatContent.appendChild(note);
+        }
+        inputFormatCard.style.display = '';
+      } else {
+        inputFormatCard.style.display = 'none';
+      }
+    }
+
     const langEl = document.getElementById('game-lang');
     langEl.textContent = problem.language === 'cpp' ? 'C++' : problem.language.toUpperCase();
     langEl.className = `lang-badge lang-${problem.language}`;
