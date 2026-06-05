@@ -6,7 +6,7 @@
   categoryLabel: '深層学習',
   difficulty: 2,
   language: 'python',
-  description: 'NumPy を使って2層ニューラルネットワークの順伝播（Forward Pass）を実装せよ。シグモイド関数を活性化関数として使用し、入力 X から出力 A2 を計算する。',
+  description: '【ニューラルネットワーク 順伝播とは】人間の脳の神経細胞（ニューロン）を模倣した計算モデルです。入力データ（例：画像のピクセル値）に重み行列 W を掛けて足し合わせ（線形変換）、その結果をシグモイド関数などの「活性化関数」に通すことで非線形な表現を学習できます。これを複数の層で繰り返して出力（予測）を得る計算が「順伝播（Forward Pass）」です。\n\nNumPy を使って2層ニューラルネットワークの順伝播（Forward Pass）を実装せよ。シグモイド関数を活性化関数として使用し、入力 X から出力 A2 を計算する。',
   pinnedCode: ['import numpy as np'],
   blocks: [
     { id: 0, code: 'def sigmoid(x):' },

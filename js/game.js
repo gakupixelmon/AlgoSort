@@ -6,6 +6,21 @@
  * ・正解後ソリューションモーダル（pinnedCodeも含む整形済みコード）
  */
 
+/**
+ * HTMLエスケープ: innerHTML に文字列を埋め込む前に必ず通す。
+ * <, >, &, ", ' を HTMLエンティティに変換することで
+ * コード中の <= や == などがタグと誤認されるのを防ぐ。
+ */
+function escapeHtml(str) {
+  if (typeof str !== 'string') return str;
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 const GameEngine = (() => {
   let currentProblem = null;
   let hintsUsed = 0;
@@ -846,21 +861,21 @@ const GameEngine = (() => {
     let explanationHtml = '';
     if (exp) {
       const pointsHtml = exp.points
-        .map(p => `<li class="explanation-point">${p}</li>`)
+        .map(p => `<li class="explanation-point">${escapeHtml(p)}</li>`)
         .join('');
       const complexityHtml = exp.complexity
         ? `<div class="explanation-complexity">
-            <span class="complexity-item"><span class="complexity-label">時間計算量</span><code class="complexity-value">${exp.complexity.time}</code></span>
-            <span class="complexity-item"><span class="complexity-label">空間計算量</span><code class="complexity-value">${exp.complexity.space}</code></span>
+            <span class="complexity-item"><span class="complexity-label">時間計算量</span><code class="complexity-value">${escapeHtml(exp.complexity.time)}</code></span>
+            <span class="complexity-item"><span class="complexity-label">空間計算量</span><code class="complexity-value">${escapeHtml(exp.complexity.space)}</code></span>
            </div>`
         : '';
       const tipHtml = exp.tip
-        ? `<div class="explanation-tip"><span class="tip-icon">💡</span><span>${exp.tip}</span></div>`
+        ? `<div class="explanation-tip"><span class="tip-icon">💡</span><span>${escapeHtml(exp.tip)}</span></div>`
         : '';
       explanationHtml = `
         <div class="solution-explanation-section">
           <div class="explanation-label">📖 解説</div>
-          <p class="explanation-summary">${exp.summary}</p>
+          <p class="explanation-summary">${escapeHtml(exp.summary)}</p>
           <ul class="explanation-points">${pointsHtml}</ul>
           ${complexityHtml}
           ${tipHtml}

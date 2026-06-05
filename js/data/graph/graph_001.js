@@ -10,7 +10,7 @@
   categoryLabel: 'グラフ理論',
   difficulty: 2,
   language: 'cpp',
-  description: 'グラフの幅優先探索（BFS）を実装せよ。キュー（queue）を使い、始点 start から到達可能な全ノードを層ごとに探索する。各ノードの訪問済みフラグを管理して無限ループを防ぐこと。',
+  description: '【幅優先探索（BFS）とは】迷路の出口を探すとき、「入口から距離1のマスを全部調べてから、距離2のマスを調べる…」という層ごとに広がっていく探索方法です。キュー（待ち行列）を使い、近いところから順番に確認していきます。「最短で何ステップか」を知りたい問題に特に向いています。\n\nグラフの幅優先探索（BFS）を実装せよ。キュー（queue）を使い、始点 start から到達可能な全ノードを層ごとに探索する。各ノードの訪問済みフラグを管理して無限ループを防ぐこと。',
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [
     { id: 0,  code: 'void bfs(vector<vector<int>>& graph, int start) {' },

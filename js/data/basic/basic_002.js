@@ -6,7 +6,7 @@
   categoryLabel: '基本アルゴリズム',
   difficulty: 1,
   language: 'python',
-  description: '配列 arr をバブルソートで昇順に並び替えよ。Python で隣接要素の比較・交換を繰り返し実装する。',
+  description: '【バブルソートとは】隣り合う2つの数を比べて、大きい方を右に移動させる操作を繰り返すことで、配列を小さい順に並べる方法です。泡が浮かび上がるように大きな値が末尾へ移動していく、プログラミング学習の入門アルゴリズムです。\n\n配列 arr をバブルソートで昇順に並び替えよ。Python で隣接要素の比較・交換を繰り返し実装する。',
   blocks: [
     { id: 0, code: 'def bubble_sort(arr):' },
     { id: 1, code: '    n = len(arr)' },

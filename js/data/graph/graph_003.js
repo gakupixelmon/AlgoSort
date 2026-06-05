@@ -8,7 +8,7 @@
   categoryLabel: 'グラフ理論',
   difficulty: 2,
   language: 'cpp',
-  description: 'グラフの深さ優先探索（DFS）を再帰を使って実装せよ。始点 start から到達可能な全ノードを深く潜りながら探索する。visited 配列でサイクルを防ぐこと。',
+  description: '【深さ優先探索（DFS）とは】迷路を探索するとき「一本道を行けるところまで進み、行き止まりになったら1つ前の分岐に戻る」という方法です。再帰（または自前のスタック）を使って実装します。BFS と対比して「できるだけ深く潜ってから戻る」探索で、連結成分の確認やサイクル検出などに使われます。\n\nグラフの深さ優先探索（DFS）を再帰を使って実装せよ。始点 start から到達可能な全ノードを深く潜りながら探索する。visited 配列でサイクルを防ぐこと。',
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [
     { id: 0, code: 'void dfs(vector<vector<int>>& graph, int node,' },

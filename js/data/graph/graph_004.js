@@ -7,7 +7,7 @@
   categoryLabel: 'グラフ理論',
   difficulty: 2,
   language: 'python',
-  description: 'グラフの深さ優先探索（DFS）をPythonで再帰を使って実装せよ。訪問順のリストを返す。visited を set で管理してサイクルを防ぐこと。',
+  description: '【深さ優先探索（DFS）とは】迷路を探索するとき「一本道を行けるところまで進み、行き止まりになったら1つ前の分岐に戻る」という方法です。Pythonでは再帰関数として実装するのが一般的です。\n\nPythonでDFSを書くときの注意：デフォルト引数に list や set などの可変オブジェクトを直接書くと、呼び出し間で意図せず共有されるバグが発生します。そのため visited=None と書いて関数内で初期化するのが正しいパターンです。\n\nグラフの深さ優先探索（DFS）をPythonで再帰を使って実装せよ。訪問順のリストを返す。visited を set で管理してサイクルを防ぐこと。',
   blocks: [
     { id: 0,  code: 'def dfs(graph, node, visited=None, order=None):' },
     { id: 1,  code: '    if visited is None:' },

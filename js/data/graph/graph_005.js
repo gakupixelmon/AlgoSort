@@ -7,7 +7,7 @@
   categoryLabel: 'グラフ理論',
   difficulty: 4,
   language: 'cpp',
-  description: 'Union-Find（素集合データ構造）を経路圧縮とランクによる合併（Union by Rank）を用いて実装せよ。find(x) は x の根を返し、経路圧縮で高速化する。unite(x, y) はランクを比較して木の高さを最小化する。',
+  description: '【Union-Find（素集合データ構造）とは】「AとBは同じグループか？」「AのグループにBを合流させる」という2つの操作を超高速で処理するためのデータ構造です。例えばSNSで「友達の友達は友達」という連結関係を管理したり、グラフで「2つの頂点が同じ連結成分に属するか」を判定する場面で使われます。\n\n経路圧縮（木の根をショートカット）とランクによる合併（木が低い方を高い木に繋ぐ）という2つの最適化を組み合わせることで、各操作がほぼ O(1) という驚異的な速さになります。\n\nUnion-Find（素集合データ構造）を経路圧縮とランクによる合併（Union by Rank）を用いて実装せよ。find(x) は x の根を返し、経路圧縮で高速化する。unite(x, y) はランクを比較して木の高さを最小化する。',
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [
     { id: 0,  code: 'struct UnionFind {' },

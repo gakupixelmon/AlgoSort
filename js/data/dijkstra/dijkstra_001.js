@@ -9,7 +9,7 @@
   categoryLabel: 'ダイクストラ法',
   difficulty: 4,
   language: 'cpp',
-  description: '優先度付きキュー（priority_queue）を使ってダイクストラ法を実装せよ。有向重み付きグラフにおいて、始点 start から全ノードへの最短距離を dist[] に記録する。グラフは隣接リスト形式（pair<ノード番号,重み>）。INT_MAX で未到達を表現し、キューから取り出したコストが dist より大きい場合はスキップする（遅延削除）。',
+  description: '【ダイクストラ法とは】地図上の最短経路を求めるアルゴリズムです。カーナビの経路探索でも使われています。「まだ確定していない頂点のうち、スタートから最も近い頂点を選んで確定する」という操作を繰り返すことで、全ての頂点への最短距離を求めます。優先度付きキュー（ヒープ）を使うと高速に動作します。ただし、負のコストを持つ辺には使えません。\n\n優先度付きキュー（priority_queue）を使ってダイクストラ法を実装せよ。有向重み付きグラフにおいて、始点 start から全ノードへの最短距離を dist[] に記録する。グラフは隣接リスト形式（pair<ノード番号,重み>）。INT_MAX で未到達を表現し、キューから取り出したコストが dist より大きい場合はスキップする（遅延削除）。',
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [
     { id: 0,  code: 'void dijkstra(vector<vector<pair<int,int>>>& graph, int start, vector<int>& dist) {' },
