@@ -16,7 +16,15 @@ const App = (() => {
     // Firebase が有効な場合のみ認証を初期化
     if (window.FIREBASE_ENABLED && window.AuthManager) AuthManager.init();
     _setupAuthButtons();
-    navigateTo('home');
+
+    // ?user=xxx が URL にあればプロフィール画面を表示、なければホーム
+    if (window.FIREBASE_ENABLED && window.ProfileManager) {
+      ProfileManager.checkAndShow().then((isProfile) => {
+        if (!isProfile) navigateTo('home');
+      });
+    } else {
+      navigateTo('home');
+    }
   }
 
   // 認証ボタンのイベントリスナーを設定

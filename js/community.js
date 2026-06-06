@@ -6,17 +6,27 @@
  *     - attemptCount : number  （ユニーク挑戦人数）
  *     - clearCount   : number  （ユニーククリア人数）
  *
- *   /userStats/{uid}
+ *   /userStats/{uid}          ← プライベート
  *     - displayName  : string
  *     - avatarUrl    : string
  *     - attempts     : { [problemId]: timestamp }
  *     - clears       : { [problemId]: timestamp }
  *
+ *   /publicProfiles/{uid}     ← 公開（草グラフ用）
+ *     - githubLogin   : string
+ *     - displayName   : string
+ *     - avatarUrl     : string
+ *     - totalClears   : number
+ *     - clearedIds    : string[]
+ *     - dailyActivity : { [YYYY-MM-DD]: number }
+ *
+ *   /usersByLogin/{githubLogin} ← 公開（UID ルックアップ）
+ *     - uid : string
+ *
  * FIREBASE_ENABLED = false の場合はすべての操作が no-op になる。
  */
 
 const CommunityStats = (() => {
-  // セッション内で記録済みの問題を追跡（無駄な読み込みを防ぐ）
   const _attemptedInSession = new Set();
   const _clearedInSession   = new Set();
 
@@ -25,9 +35,7 @@ const CommunityStats = (() => {
     if (!window.FIREBASE_ENABLED || !window.db) return null;
     try {
       const doc = await db.collection('problemStats').doc(problemId).get();
-      return doc.exists
-        ? doc.data()
-        : { attemptCount: 0, clearCount: 0 };
+      return doc.exists ? doc.data() : { attemptCount: 0, clearCount: 0 };
     } catch (e) {
       console.warn('[Community] getProblemStats error:', e);
       return null;
@@ -38,10 +46,9 @@ const CommunityStats = (() => {
   async function getBatchStats(problemIds) {
     if (!window.FIREBASE_ENABLED || !window.db || !problemIds.length) return {};
     try {
-      const promises = problemIds.map((id) =>
-        db.collection('problemStats').doc(id).get()
+      const docs = await Promise.all(
+        problemIds.map((id) => db.collection('problemStats').doc(id).get())
       );
-      const docs = await Promise.all(promises);
       const result = {};
       docs.forEach((doc, i) => {
         result[problemIds[i]] = doc.exists
@@ -58,10 +65,10 @@ const CommunityStats = (() => {
   // ─── 挑戦を記録（ユニーク） ───────────────────────────────
   async function recordAttempt(problemId) {
     if (!window.FIREBASE_ENABLED || !window.db) return;
-    if (_attemptedInSession.has(problemId)) return; // セッション内で既記録
+    if (_attemptedInSession.has(problemId)) return;
 
     const user = window.AuthManager ? AuthManager.getCurrentUser() : null;
-    if (!user) return; // 未ログインは記録しない
+    if (!user) return;
 
     const uid      = user.uid;
     const userRef  = db.collection('userStats').doc(uid);
@@ -73,7 +80,6 @@ const CommunityStats = (() => {
       const attempts = userData.attempts || {};
 
       if (!attempts[problemId]) {
-        // 初めての挑戦 → カウントをインクリメント
         const batch = db.batch();
         batch.set(userRef, {
           displayName: user.displayName || '',
@@ -100,9 +106,10 @@ const CommunityStats = (() => {
     const user = window.AuthManager ? AuthManager.getCurrentUser() : null;
     if (!user) return;
 
-    const uid      = user.uid;
-    const userRef  = db.collection('userStats').doc(uid);
-    const statsRef = db.collection('problemStats').doc(problemId);
+    const uid       = user.uid;
+    const userRef   = db.collection('userStats').doc(uid);
+    const statsRef  = db.collection('problemStats').doc(problemId);
+    const publicRef = db.collection('publicProfiles').doc(uid);
 
     try {
       const userDoc  = await userRef.get();
@@ -110,15 +117,34 @@ const CommunityStats = (() => {
       const clears   = userData.clears || {};
 
       if (!clears[problemId]) {
+        // 今日の日付文字列 YYYY-MM-DD
+        const today = new Date();
+        const dateStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
         const batch = db.batch();
+
+        // ① プライベート統計（userStats）
         batch.set(userRef, {
           clears: { ...clears, [problemId]: Date.now() },
         }, { merge: true });
+
+        // ② 全体統計（problemStats）
         batch.set(statsRef, {
           clearCount: firebase.firestore.FieldValue.increment(1),
         }, { merge: true });
+
+        // ③ 公開プロフィール（草グラフ用）
+        //    dailyActivity.YYYY-MM-DD をインクリメント（ドット記法でネストフィールドを指定）
+        batch.set(publicRef, {
+          totalClears:              firebase.firestore.FieldValue.increment(1),
+          clearedIds:               firebase.firestore.FieldValue.arrayUnion(problemId),
+          [`dailyActivity.${dateStr}`]: firebase.firestore.FieldValue.increment(1),
+          displayName: user.displayName || '',
+          avatarUrl:   user.photoURL   || '',
+        }, { merge: true });
+
         await batch.commit();
-        console.info(`[Community] Clear recorded: ${problemId}`);
+        console.info(`[Community] Clear recorded: ${problemId} (${dateStr})`);
       }
       _clearedInSession.add(problemId);
     } catch (e) {

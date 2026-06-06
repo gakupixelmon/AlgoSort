@@ -10,6 +10,7 @@
   <meta name="description" content="競技プログラミングのコードを正しい順序に並び替えるパズルゲーム。アルゴリズムを楽しく学ぼう。" />
   <link rel="stylesheet" href="css/main.css" />
   <link rel="stylesheet" href="css/game.css" />
+  <link rel="stylesheet" href="css/profile.css" />
 </head>
 <body>
 
@@ -39,6 +40,9 @@
         <button id="auth-logout-btn" class="auth-logout-btn">ログアウト</button>
       </div>
     </div>
+
+    <!-- プロフィールURLコピーボタン（ログイン済み時に表示） -->
+    <div id="profile-link-container"></div>
 
     <!-- ストリークカード -->
     <div class="streak-card">
@@ -239,6 +243,11 @@
     </div>
   </div>
 
+  <!-- ========== プロフィール画面 ========== -->
+  <div id="profile" class="screen">
+    <!-- JS (profile.js) で動的に生成 -->
+  </div>
+
   <!-- Firebase SDK (compat版 v10) -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -279,6 +288,8 @@
   <script src="js/data/deep_learning/dl_005.js"></script>
   <!-- ▼ レジストリ（問題を集約して PROBLEMS_DB / DataManager を構築） -->
   <script src="js/data/registry.js"></script>
+  <!-- ▼ プロフィール・草グラフ -->
+  <script src="js/profile.js"></script>
   <!-- ▼ アプリ本体 -->
   <script src="js/storage.js"></script>
   <script src="js/game.js"></script>
