@@ -281,6 +281,131 @@ h3 { font-size: 16px; font-weight: 600; }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ===== Auth Section ===== */
+.auth-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-sm);
+}
+
+/* GitHub ログインボタン */
+.btn-github-login {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background: #24292e;
+  color: #fff;
+  border: 1px solid #444d56;
+  border-radius: var(--radius-full);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  letter-spacing: 0.01em;
+}
+
+.btn-github-login:hover {
+  background: #2f363d;
+  border-color: #58a6ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.btn-github-login:active {
+  transform: translateY(0);
+}
+
+.github-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* ログイン済みユーザー情報 */
+.auth-user-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 6px 12px 6px 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+}
+
+.auth-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent-purple);
+}
+
+.auth-username {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.auth-logout-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.auth-logout-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+}
+
+/* ===== Community Stats ===== */
+
+/* ステージ一覧バッジ */
+.community-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: rgba(124, 58, 237, 0.08);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
+  margin-left: 4px;
+  white-space: nowrap;
+  animation: floatUp 0.3s ease;
+}
+
+/* ゲーム問題ページの統計チップ */
+.community-problem-stats {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 8px var(--space-md);
+  background: rgba(34, 211, 238, 0.05);
+  border: 1px solid rgba(34, 211, 238, 0.15);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent-cyan);
+  margin: var(--space-sm) 0;
+  animation: floatUp 0.3s ease;
+}
+
 /* ===== Responsive ===== */
 @media (min-width: 768px) {
   :root {

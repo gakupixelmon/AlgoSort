@@ -13,7 +13,18 @@ const App = (() => {
       screens[el.id] = el;
     });
     Storage.checkStreakValidity();
+    // Firebase が有効な場合のみ認証を初期化
+    if (window.FIREBASE_ENABLED && window.AuthManager) AuthManager.init();
+    _setupAuthButtons();
     navigateTo('home');
+  }
+
+  // 認証ボタンのイベントリスナーを設定
+  function _setupAuthButtons() {
+    const loginBtn  = document.getElementById('auth-login-btn');
+    const logoutBtn = document.getElementById('auth-logout-btn');
+    if (loginBtn)  loginBtn.addEventListener('click',  () => { if (window.AuthManager) AuthManager.signInWithGitHub(); });
+    if (logoutBtn) logoutBtn.addEventListener('click', () => { if (window.AuthManager) AuthManager.signOut(); });
   }
 
   function navigateTo(screenId, params = {}) {
@@ -190,6 +201,7 @@ const App = (() => {
           <div class="stage-meta">
             <span class="stage-difficulty">${stars}</span>
             <span class="stage-lang-badge">${langBadge}</span>
+            <span id="community-badge-${problem.id}" class="community-badge" style="display:none;"></span>
           </div>
         </div>
         <div class="stage-right">
@@ -201,6 +213,24 @@ const App = (() => {
       });
       list.appendChild(item);
     });
+
+    // コミュニティ統計を非同期で取得・表示
+    if (window.FIREBASE_ENABLED && window.CommunityStats) {
+      const problemIds = problems.map((p) => p.id);
+      CommunityStats.getBatchStats(problemIds).then((stats) => {
+        problems.forEach((p) => {
+          const s     = stats[p.id];
+          const badge = document.getElementById(`community-badge-${p.id}`);
+          if (badge && s && (s.attemptCount > 0 || s.clearCount > 0)) {
+            const parts = [];
+            if (s.attemptCount > 0) parts.push(`🌍 ${s.attemptCount}人が挑戦`);
+            if (s.clearCount   > 0) parts.push(`✓ ${s.clearCount}人がクリア`);
+            badge.textContent    = parts.join('  ');
+            badge.style.display  = 'inline-flex';
+          }
+        });
+      });
+    }
 
     const backBtn = document.getElementById('stages-back');
     if (backBtn) {
@@ -288,6 +318,8 @@ const App = (() => {
       },
       (result) => {
         const newStreak = Storage.recordClear(problem.id);
+        // Firebase が有効ならクリアを記録
+        if (window.FIREBASE_ENABLED && window.CommunityStats) CommunityStats.recordClear(problem.id);
         navigateTo('result', {
           problemId: problem.id,
           score: result.score,
@@ -299,6 +331,28 @@ const App = (() => {
         });
       }
     );
+
+    // Firebase が有効なら挑戦記録を書き込み・問題ページ統計を表示
+    if (window.FIREBASE_ENABLED && window.CommunityStats) {
+      CommunityStats.recordAttempt(problem.id);
+      // コミュニティ統計チップを更新
+      const statsEl = document.getElementById('community-problem-stats');
+      if (statsEl) {
+        CommunityStats.getProblemStats(problem.id).then((stats) => {
+          if (stats && stats.attemptCount > 0) {
+            const parts = [`🌍 ${stats.attemptCount}人が挑戦中`];
+            if (stats.clearCount > 0) parts.push(`✓ ${stats.clearCount}人がクリア済み`);
+            statsEl.textContent   = parts.join('　');
+            statsEl.style.display = 'flex';
+          } else {
+            statsEl.style.display = 'none';
+          }
+        });
+      }
+    } else {
+      const statsEl = document.getElementById('community-problem-stats');
+      if (statsEl) statsEl.style.display = 'none';
+    }
   }
 
   // ======= 結果画面 =======
