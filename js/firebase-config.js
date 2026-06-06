@@ -22,27 +22,26 @@
  * }
  */
 
-// ▼ Firebase Consoleから取得した設定値をここに貼り付けてください
 const FIREBASE_CONFIG = {
-  apiKey:            'YOUR_API_KEY',
-  authDomain:        'YOUR_PROJECT.firebaseapp.com',
-  projectId:         'YOUR_PROJECT_ID',
-  storageBucket:     'YOUR_PROJECT.firebasestorage.app',
-  messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-  appId:             'YOUR_APP_ID',
+  apiKey: "AIzaSyBEkhJW3TA7ysPYkhBImwgmXa-1qDLWocA",
+  authDomain: "algosort-1837c.firebaseapp.com",
+  projectId: "algosort-1837c",
+  storageBucket: "algosort-1837c.firebasestorage.app",
+  messagingSenderId: "546608772437",
+  appId: "1:546608772437:web:61d008dda2613cd49cabdc",
 };
 // ▲ ここまで
 
 // Firebase が設定済みか判定
 window.FIREBASE_ENABLED = FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY';
 
-window.db          = null;
+window.db = null;
 window.firebaseAuth = null;
 
 if (window.FIREBASE_ENABLED) {
   try {
     firebase.initializeApp(FIREBASE_CONFIG);
-    window.db          = firebase.firestore();
+    window.db = firebase.firestore();
     window.firebaseAuth = firebase.auth();
     console.info('[AlgoSort] Firebase initialized.');
   } catch (e) {
