@@ -1317,7 +1317,7 @@
   border-top: 2px solid var(--accent-purple);
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   width: 100%;
-  max-width: 640px;
+  max-width: 760px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
@@ -1398,6 +1398,31 @@
 }
 .solution-lang-badge.lang-cpp    { background: rgba(34,211,238,0.15); color: var(--accent-cyan); border: 1px solid rgba(34,211,238,0.3); }
 .solution-lang-badge.lang-python { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+
+/* ===== コピーボタン ===== */
+.solution-copy-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.solution-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+.solution-copy-btn.copied {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.5);
+  color: var(--accent-green);
+}
 
 .solution-code-wrapper {
   overflow-y: auto;
@@ -1605,4 +1630,24 @@
   padding: 1px 6px;
   font-weight: 600;
   letter-spacing: 0;
+}
+
+/* PC版向けの解説欄拡張 */
+@media (min-width: 768px) {
+  .solution-explanation-section {
+    padding: var(--space-lg) var(--space-xl);
+  }
+  .explanation-label {
+    font-size: 13px;
+    margin-bottom: var(--space-md);
+  }
+  .explanation-summary {
+    font-size: 15px;
+    line-height: 1.8;
+    margin-bottom: var(--space-md);
+  }
+  .explanation-point {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
 }

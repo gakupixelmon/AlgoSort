@@ -898,7 +898,10 @@ const GameEngine = (() => {
         <div class="solution-code-section">
           <div class="solution-code-label">
             <span>✅ 正しいコード</span>
-            <span class="solution-lang-badge lang-${problem.language}">${langLabel}</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button id="solution-copy-btn" class="solution-copy-btn" title="コードをコピー">📋 コピー</button>
+              <span class="solution-lang-badge lang-${problem.language}">${langLabel}</span>
+            </div>
           </div>
           <div class="solution-code-wrapper">
             <pre class="solution-pre"><code id="solution-code-content"></code></pre>
@@ -941,6 +944,25 @@ const GameEngine = (() => {
     requestAnimationFrame(() => {
       modal.classList.add('visible');
     });
+
+    // コピーボタンの処理
+    const copyBtn = document.getElementById('solution-copy-btn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        const codeText = codeLines.join('\\n');
+        navigator.clipboard.writeText(codeText).then(() => {
+          copyBtn.textContent = '✓ コピー完了';
+          copyBtn.classList.add('copied');
+          setTimeout(() => {
+            copyBtn.textContent = '📋 コピー';
+            copyBtn.classList.remove('copied');
+          }, 2000);
+        }).catch(err => {
+          console.error('Failed to copy text: ', err);
+          alert('コピーに失敗しました');
+        });
+      });
+    }
 
     document.getElementById('solution-next-btn').addEventListener('click', () => {
       modal.classList.remove('visible');
