@@ -695,13 +695,32 @@
   font-size: 11px;
   color: #e2e8f0;
   white-space: pre;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none; /* Firefox: hide scrollbar by default for cleaner look */
   flex: 1;
   line-height: 1.45;
   /* リガチャ無効化: != が ≠ に、== が ═ に変換されるのを防ぐ */
   font-feature-settings: 'liga' 0, 'calt' 0;
   font-variant-ligatures: none;
+}
+
+/* Hover時にスクロールバーを表示（Webkit） */
+.block-code::-webkit-scrollbar {
+  height: 2px;
+}
+.block-code::-webkit-scrollbar-track {
+  background: transparent;
+}
+.block-code::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 2px;
+}
+.code-block:hover .block-code::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+.code-block:hover .block-code {
+  scrollbar-width: thin;
 }
 
 /* タップアイコン（右端に表示） */
@@ -1196,7 +1215,12 @@
 @media (max-width: 767px) {
   /* コードブロックのフォントを少し小さく */
   .block-code {
-    font-size: 10.5px;
+    font-size: 9.5px;
+  }
+
+  /* ソリューションモーダルのコードもフォントを少し小さく */
+  .solution-pre {
+    font-size: 11.5px;
   }
 
   /* スマホではPC版タブを非表示、ページインジケーターを表示 */
@@ -1425,7 +1449,7 @@
 }
 
 .solution-code-wrapper {
-  overflow-y: auto;
+  overflow: auto; /* overflow-y: auto から変更し、横スクロールも許可 */
   flex: 1;
   padding: var(--space-sm) 0;
   background: var(--bg-primary);
