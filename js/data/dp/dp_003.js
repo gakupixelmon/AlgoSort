@@ -13,6 +13,13 @@
       { name: 'arr', type: 'vector<int>&', desc: '整数配列（長さ N）' },
     ],
     note: '戻り値: int（LIS の長さ）\n制約: 1 ≤ N ≤ 10^5、−10^9 ≤ arr[i] ≤ 10^9',
+    examples: [
+      {
+        input: 'arr = [3, 1, 4, 1, 5, 9, 2, 6]',
+        output: '4',
+        explanation: '[1, 4, 5, 9] や [1, 4, 5, 6] などが最長増加部分列となり、その長さは 4 です。'
+      }
+    ],
   },
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [

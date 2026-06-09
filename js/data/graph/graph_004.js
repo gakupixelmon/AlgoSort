@@ -16,6 +16,13 @@
       { name: 'order', type: 'list | None', desc: '訪問順リスト（初回は省略可、内部で初期化）' },
     ],
     note: '戻り値: list[int]（訪問順のノードリスト）\n制約: 1 ≤ V ≤ 10^4（再帰上限に注意）',
+    examples: [
+      {
+        input: 'graph = {0: [1, 2], 1: [0, 3], 2: [0], 3: [1]}\nnode = 0',
+        output: '[0, 1, 3, 2]',
+        explanation: '0から1へ、1から3へ深く探索し、行き止まりになると0に戻り、最後に2を探索します。'
+      }
+    ],
   },
   blocks: [
     { id: 0,  code: 'def dfs(graph, node, visited=None, order=None):' },

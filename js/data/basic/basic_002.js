@@ -12,6 +12,13 @@
       { name: 'arr', type: 'list[int]', desc: '並び替え対象の整数リスト' },
     ],
     note: '戻り値: list[int]（ソート済みリストを return）\n制約: 1 ≤ len(arr) ≤ 10^4',
+    examples: [
+      {
+        input: 'arr = [5, 3, 8, 4, 2]',
+        output: '[2, 3, 4, 5, 8]',
+        explanation: '隣接する要素を比較・交換し、昇順に並び替えられたリストを返します。'
+      }
+    ],
   },
   blocks: [
     { id: 0, code: 'def bubble_sort(arr):' },

@@ -16,6 +16,13 @@
       { name: 'W3, b3', type: 'np.ndarray', desc: '第3層（隠れ層2→出力層）の重みとバイアス' },
     ],
     note: '戻り値: np.ndarray（出力 A3、値域 (0, 1)）\n隠れ層: ReLU、出力層: sigmoid\nピン留め: import numpy as np',
+    examples: [
+      {
+        input: 'X = np.array([[1.0, -1.0]])\n各層の重みとバイアス',
+        output: 'array([[0.812...]])',
+        explanation: '隠れ層では ReLU 関数により 0 以下の値がカットされ、最終出力層では sigmoid 関数により (0, 1) の範囲に収まった確率値が返ります。'
+      }
+    ],
   },
   pinnedCode: ['import numpy as np'],
   blocks: [

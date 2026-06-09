@@ -15,6 +15,18 @@
       { name: 'n', type: 'int', desc: 'フィボナッチ数列の第 n 項を求める（0-indexed: fib(0)=0, fib(1)=1）' },
     ],
     note: '戻り値: long long（第 n 項の値）\n制約: 0 ≤ n ≤ 86（long long の範囲内）',
+    examples: [
+      {
+        input: 'n = 5',
+        output: '5',
+        explanation: 'fib(0)=0, fib(1)=1, fib(2)=1, fib(3)=2, fib(4)=3, fib(5)=5 となります。'
+      },
+      {
+        input: 'n = 10',
+        output: '55',
+        explanation: 'フィボナッチ数列の第 10 項は 55 です。'
+      }
+    ],
   },
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [

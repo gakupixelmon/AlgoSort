@@ -290,6 +290,51 @@ const App = (() => {
           note.textContent = problem.inputFormat.note;
           inputFormatContent.appendChild(note);
         }
+
+        if (problem.inputFormat.examples) {
+          problem.inputFormat.examples.forEach((ex, idx) => {
+            const exContainer = document.createElement('div');
+            exContainer.className = 'input-format-example';
+            
+            const exTitle = document.createElement('div');
+            exTitle.className = 'example-title';
+            exTitle.textContent = `【入力例・出力例 ${idx + 1}】`;
+            exContainer.appendChild(exTitle);
+            
+            const exInputLabel = document.createElement('div');
+            exInputLabel.className = 'example-label';
+            exInputLabel.textContent = '入力:';
+            exContainer.appendChild(exInputLabel);
+
+            const exInput = document.createElement('pre');
+            exInput.className = 'example-code';
+            exInput.textContent = ex.input;
+            exContainer.appendChild(exInput);
+
+            const exOutputLabel = document.createElement('div');
+            exOutputLabel.className = 'example-label';
+            exOutputLabel.textContent = '出力:';
+            exContainer.appendChild(exOutputLabel);
+
+            const exOutput = document.createElement('pre');
+            exOutput.className = 'example-code';
+            exOutput.textContent = ex.output;
+            exContainer.appendChild(exOutput);
+            
+            if (ex.explanation) {
+              const exExpLabel = document.createElement('div');
+              exExpLabel.className = 'example-label';
+              exExpLabel.textContent = '説明:';
+              exContainer.appendChild(exExpLabel);
+              const exExp = document.createElement('div');
+              exExp.className = 'example-explanation';
+              exExp.textContent = ex.explanation;
+              exContainer.appendChild(exExp);
+            }
+
+            inputFormatContent.appendChild(exContainer);
+          });
+        }
         inputFormatCard.style.display = '';
       } else {
         inputFormatCard.style.display = 'none';

@@ -15,6 +15,13 @@
       { name: 'm', type: 'long long', desc: '必要な木材の合計量' },
     ],
     note: '戻り値: long long（最大の切断高さ H）\n制約: 1 ≤ N ≤ 10^5、0 ≤ trees[i] ≤ 10^9、1 ≤ m ≤ sum(trees)',
+    examples: [
+      {
+        input: 'trees = [20, 15, 10, 17]\nm = 7',
+        output: '15',
+        explanation: '高さ 15 で切ると、20の木から5、17の木から2の木材が得られ、合計 7 となり条件を満たします。'
+      }
+    ],
   },
   pinnedCode: [
     '#include <bits/stdc++.h>',

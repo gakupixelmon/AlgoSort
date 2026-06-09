@@ -17,6 +17,13 @@
       { name: 'start', type: 'int', desc: 'BFS を開始するノード番号' },
     ],
     note: '戻り値: void（処理は内部で完結）\n制約: 1 ≤ V ≤ 10^5、0 ≤ E ≤ 10^5',
+    examples: [
+      {
+        input: 'graph = [[1, 2], [0, 3], [0], [1]]\nstart = 0',
+        output: '（コンソール出力などを想定）: 0 -> 1 -> 2 -> 3 の順で探索される',
+        explanation: '0から始まり、距離1のノード1, 2が探索され、次にノード1の隣接ノード3が探索されます。'
+      }
+    ],
   },
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [

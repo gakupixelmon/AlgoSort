@@ -13,6 +13,13 @@
       { name: 'meetings', type: 'vector<pair<int,int>>&', desc: '各会議の {開始時刻, 終了時刻} のペア配列' },
     ],
     note: '戻り値: int（開催可能な会議の最大数）\n制約: 1 ≤ N ≤ 10^5、0 ≤ s[i] < e[i] ≤ 10^9',
+    examples: [
+      {
+        input: 'meetings = [{1, 3}, {2, 5}, {4, 6}, {6, 8}]',
+        output: '3',
+        explanation: '{1, 3}, {4, 6}, {6, 8} の3つの会議を選ぶのが最大です。'
+      }
+    ],
   },
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [

@@ -14,6 +14,13 @@
       { name: 'W2, b2', type: 'np.ndarray', desc: '第2層の重み行列とバイアスベクトル' },
     ],
     note: '戻り値: np.ndarray（出力 A2、shape: [バッチ数, 出力次元数]、値域 (0, 1)）\nピン留め: import numpy as np',
+    examples: [
+      {
+        input: 'X = np.array([[0.5, 0.2]])\nW1 = np.array([[0.1, 0.3], [0.2, 0.4]])\nb1 = np.array([0.1, 0.1])\nW2 = np.array([[0.5], [0.6]])\nb2 = np.array([0.2])',
+        output: 'array([[0.725...]])',
+        explanation: '入力データに行列の重みとバイアスを掛け、シグモイド関数を通す処理を2層繰り返した結果の確率が出力されます。'
+      }
+    ],
   },
   pinnedCode: ['import numpy as np'],
   blocks: [

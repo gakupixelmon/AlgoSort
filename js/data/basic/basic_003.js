@@ -16,6 +16,18 @@
       { name: 'target', type: 'int', desc: '探したい値' },
     ],
     note: '戻り値: int（見つかった場合はインデックス、見つからなければ -1）\n制約: 1 ≤ N ≤ 10^6',
+    examples: [
+      {
+        input: 'arr = [1, 3, 5, 7, 9]\ntarget = 7',
+        output: '3',
+        explanation: '7 は配列のインデックス 3 に存在するため、3 を返します。'
+      },
+      {
+        input: 'arr = [1, 3, 5, 7, 9]\ntarget = 4',
+        output: '-1',
+        explanation: '4 は配列内に存在しないため、-1 を返します。'
+      }
+    ],
   },
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [

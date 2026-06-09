@@ -16,6 +16,13 @@
       { name: 'lr', type: 'float', desc: '学習率（Learning Rate）、例: 0.01' },
     ],
     note: '戻り値: (W1, b1, W2, b2, loss)（更新後パラメータと損失値）',
+    examples: [
+      {
+        input: 'W1 = np.array([[0.1, 0.2]]), b1 = np.array([0.1, 0.1])\ngrads = {"dW1": np.array([[0.05, -0.05]]), "db1": np.array([0.01, -0.01])}\nlr = 0.1',
+        output: 'W1 = np.array([[0.095, 0.205]])\nb1 = np.array([0.099, 0.101])',
+        explanation: '勾配 dW, db の方向に学習率 lr を掛けた分だけパラメータを更新し、損失が小さくなる方向へパラメータを動かします。'
+      }
+    ],
   },
   blocks: [
     { id: 0,  code: 'def gradient_descent(W, b, dW, db, lr):' },

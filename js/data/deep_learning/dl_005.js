@@ -15,6 +15,13 @@
       { name: 'y_true', type: 'np.ndarray', desc: '正解ラベル（shape: [バッチ数, 出力次元]）' },
     ],
     note: 'forward(X, W, b): (A, Z) を返す\nbackward(X, A, Z, y_true): (dW, db) を返す\nピン留め: import numpy as np',
+    examples: [
+      {
+        input: 'X = np.array([[1.0, 2.0]])\ny_true = np.array([[1.0]])',
+        output: 'dW = np.array([[-0.1...], [-0.2...]])\ndb = np.array([-0.1...])',
+        explanation: '順伝播で出力 A を計算し、誤差 (A - y_true) を求め、連鎖律に従って重みとバイアスそれぞれの勾配を逆算して返します。'
+      }
+    ],
   },
   pinnedCode: ['import numpy as np'],
   blocks: [

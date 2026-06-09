@@ -13,6 +13,13 @@
       { name: 'y_true', type: 'np.ndarray', desc: '正解ラベル（shape: [バッチ数]、整数インデックス）' },
     ],
     note: 'softmax(z) 戻り値: np.ndarray（確率分布、shape: [バッチ数, クラス数]、各行の合計=1）\ncross_entropy(probs, y_true) 戻り値: float（バッチ平均損失）\nピン留め: import numpy as np',
+    examples: [
+      {
+        input: 'z = np.array([[1.0, 2.0, 3.0]])\ny_true = np.array([2])',
+        output: 'softmax(z) = [[0.09, 0.24, 0.66]]\ncross_entropy = 0.407...',
+        explanation: 'Softmax により各クラスのスコアが合計1の確率分布に変換されます。正解ラベルが 2 (3番目) のため、0.66 の確率に対する対数損失が計算されます。'
+      }
+    ],
   },
   pinnedCode: ['import numpy as np'],
   blocks: [

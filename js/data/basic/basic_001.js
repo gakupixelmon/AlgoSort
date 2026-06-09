@@ -13,6 +13,13 @@
       { name: 'arr', type: 'vector<int>&', desc: '並び替え対象の整数配列（参照渡し）' },
     ],
     note: '戻り値: void（arr を直接変更する）\n制約: 1 ≤ N ≤ 10^4',
+    examples: [
+      {
+        input: 'arr = [5, 3, 8, 4, 2]',
+        output: 'arr = [2, 3, 4, 5, 8]',
+        explanation: '隣接する要素を比較・交換し、昇順に並び替えます。'
+      }
+    ],
   },
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [

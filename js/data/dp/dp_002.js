@@ -16,6 +16,13 @@
       { name: 'v', type: 'vector<int>&', desc: '各品物の価値配列（v[i] は i 番目の品物の価値）' },
     ],
     note: '戻り値: int（選んだ品物の価値の最大合計）\n制約: 1 ≤ N ≤ 100、1 ≤ W ≤ 10^4、1 ≤ w[i], v[i] ≤ 10^3',
+    examples: [
+      {
+        input: 'N = 3, W = 8\nw = [3, 4, 5]\nv = [30, 50, 60]',
+        output: '90',
+        explanation: '重さ3(価値30)と重さ5(価値60)の品物を選ぶと、合計の重さは8、価値は 30+60 = 90 となり最大です。'
+      }
+    ],
   },
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [

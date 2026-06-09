@@ -17,6 +17,13 @@
       { name: 'dist', type: 'vector<int>&', desc: '各ノードへの最短距離を格納する配列（出力用）' },
     ],
     note: '戻り値: void（dist[] に結果を書き込む）\n制約: 1 ≤ V ≤ 10^5、1 ≤ E ≤ 2×10^5、重み ≥ 0',
+    examples: [
+      {
+        input: 'graph = [[{1, 2}, {2, 5}], [{2, 1}], []]\nstart = 0\ndist = [MAX, MAX, MAX]',
+        output: 'dist = [0, 2, 3]',
+        explanation: 'ノード0から1への最短距離は2。ノード0から2へ直接行くと5ですが、1を経由すると 2+1=3 となり短いため、最短距離は3になります。'
+      }
+    ],
   },
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [

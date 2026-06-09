@@ -14,6 +14,13 @@
       { name: 'edges', type: 'vector<Edge>', desc: '辺のリスト' },
     ],
     note: '戻り値: long long (最小全域木のコスト総和)\n制約: 1 ≤ V ≤ 10^5, 0 ≤ E ≤ 10^5',
+    examples: [
+      {
+        input: 'V = 4\nedges = [{0,1,10}, {0,2,6}, {0,3,5}, {1,3,15}, {2,3,4}]',
+        output: '19',
+        explanation: '重みが小さい順に {2,3,4}, {0,3,5}, {0,1,10} の3つの辺を選ぶと、コスト総和は 4+5+10 = 19 となります。'
+      }
+    ],
   },
   pinnedCode: [
     '#include <bits/stdc++.h>',

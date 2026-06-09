@@ -15,6 +15,13 @@
       { name: 'y', type: 'int', desc: 'unite() の合流先ノード番号' },
     ],
     note: 'find(x): int（根ノード番号）\nunite(x, y): bool（既に同一グループなら false）\n制約: 1 ≤ N ≤ 10^5、クエリ数 ≤ 10^5',
+    examples: [
+      {
+        input: 'n = 5\nunite(0, 1)\nunite(1, 2)\nfind(0) と find(2)',
+        output: '同じ根ノードの番号を返す',
+        explanation: '0と1、1と2を繋ぐことで、0と2も同じグループ（同じ根）に属することがわかります。'
+      }
+    ],
   },
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [

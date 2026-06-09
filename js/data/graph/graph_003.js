@@ -16,6 +16,13 @@
       { name: 'visited', type: 'vector<bool>&', desc: '各ノードの訪問済みフラグ（参照渡し）' },
     ],
     note: '戻り値: void（再帰処理）\n制約: 1 ≤ V ≤ 10^5、0 ≤ E ≤ 10^5',
+    examples: [
+      {
+        input: 'graph = [[1, 2], [0, 3], [0], [1]]\nnode = 0\nvisited = [false, false, false, false]',
+        output: '（visited がすべて true になる）',
+        explanation: '0から再帰的に1へ、さらに3へと深く潜り、戻ってから2を探索します。'
+      }
+    ],
   },
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [

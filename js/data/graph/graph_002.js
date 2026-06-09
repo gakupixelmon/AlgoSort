@@ -14,6 +14,13 @@
       { name: 'start', type: 'int', desc: 'BFS を開始するノード番号' },
     ],
     note: '戻り値: list[int]（訪問順のノードリスト）\n制約: 1 ≤ V ≤ 10^5、0 ≤ E ≤ 10^5',
+    examples: [
+      {
+        input: 'graph = {0: [1, 2], 1: [0, 3], 2: [0], 3: [1]}\nstart = 0',
+        output: '[0, 1, 2, 3]',
+        explanation: '0から始まり、距離1のノード1, 2が順番に探索され、次に3が探索されます。'
+      }
+    ],
   },
   pinnedCode: ['from collections import deque'],
   blocks: [

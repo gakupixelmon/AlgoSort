@@ -13,6 +13,13 @@
       { name: 'arr', type: 'vector<int>&', desc: '並び替え対象の整数配列（参照渡し）' },
     ],
     note: '戻り値: void（arr を直接変更する）\n制約: 1 ≤ N ≤ 10^4',
+    examples: [
+      {
+        input: 'arr = [29, 10, 14, 37, 14]',
+        output: 'arr = [10, 14, 14, 29, 37]',
+        explanation: '未ソート部分から最小値を探し、先頭と交換する操作を繰り返して昇順に並び替えます。'
+      }
+    ],
   },
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [

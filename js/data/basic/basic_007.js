@@ -14,6 +14,18 @@
       { name: 'target', type: 'int', desc: '探索対象の値' },
     ],
     note: '戻り値: int（target 以上の要素の最初のインデックス。なければ arr.size()）\n制約: 1 ≤ N ≤ 10^6、配列は昇順ソート済み',
+    examples: [
+      {
+        input: 'arr = [1, 2, 4, 4, 5, 8]\ntarget = 4',
+        output: '2',
+        explanation: '4 以上の最初の要素はインデックス 2 にあります。'
+      },
+      {
+        input: 'arr = [1, 2, 4, 4, 5, 8]\ntarget = 6',
+        output: '5',
+        explanation: '6 以上の最初の要素は 8 で、インデックス 5 にあります。'
+      }
+    ],
   },
   pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
   blocks: [
