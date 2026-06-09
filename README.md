@@ -5,7 +5,7 @@
 競技プログラミングのコードを正しい順序に並び替えるパズルゲームです。  
 タップ・ドラッグ操作でコードブロックを並べ、アルゴリズムの構造を楽しく学べます。
 
-🔗 **プレイはこちら**: [https://algo-sort.vercel.app](https://algo-sort.vercel.app)
+🔗 **プレイはこちら**: [https://algo-sort-seven.vercel.app](https://algo-sort-seven.vercel.app)
 
 ---
 
