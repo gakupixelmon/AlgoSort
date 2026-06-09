@@ -28,7 +28,23 @@
     '',
     'struct Edge { int u, v, cost; };',
     '// bool operator<(const Edge& a, const Edge& b) は定義済みとする',
-    '// struct UnionFind { ... } は定義済みとする'
+    'struct UnionFind {',
+    '    vector<int> par;',
+    '    UnionFind(int n) : par(n, -1) {}',
+    '    int root(int x) {',
+    '        if (par[x] < 0) return x;',
+    '        return par[x] = root(par[x]);',
+    '    }',
+    '    bool isSame(int x, int y) { return root(x) == root(y); }',
+    '    void unite(int x, int y) {',
+    '        x = root(x); y = root(y);',
+    '        if (x != y) {',
+    '            if (par[x] > par[y]) swap(x, y);',
+    '            par[x] += par[y];',
+    '            par[y] = x;',
+    '        }',
+    '    }',
+    '};'
   ],
   blocks: [
     { id: 0,  code: 'long long kruskal(int V, vector<Edge>& edges) {' },
@@ -47,7 +63,7 @@
   partialOrder: [
     [0, 1], [0, 2], [0, 3], 
     [1, 4], [2, 4], [3, 4], // sort, uf初期化, res初期化はループより前
-    [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], // ループ内部
+    [4, 5], [5, 6], [5, 7], [6, 8], [7, 8], [8, 9], // ループ内部 (6と7は順不同)
     [9, 10], [10, 11] // return
   ],
   hints: [
