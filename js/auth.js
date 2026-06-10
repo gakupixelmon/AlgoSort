@@ -21,7 +21,11 @@ const AuthManager = (() => {
         try {
           const profileDoc = await db.collection('publicProfiles').doc(user.uid).get();
           if (profileDoc.exists) {
-            _githubLogin = profileDoc.data().githubLogin || null;
+            const data = profileDoc.data();
+            _githubLogin = data.githubLogin || null;
+            if (window.Storage && Storage.syncFromFirebase) {
+              Storage.syncFromFirebase(data);
+            }
           }
         } catch (_e) { /* 読み取り失敗は無視 */ }
       } else {
@@ -33,6 +37,11 @@ const AuthManager = (() => {
       // ログイン済みならプロフィールURLボタンを表示
       if (_githubLogin && window.ProfileManager) {
         ProfileManager.renderProfileLinkBtn(_githubLogin);
+      }
+      
+      // ホーム画面の場合は更新して最新のストリーク等を反映
+      if (window.App && App.getCurrentScreen && App.getCurrentScreen() === 'home') {
+        App.renderHome();
       }
     });
   }

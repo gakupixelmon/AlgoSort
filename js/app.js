@@ -479,7 +479,9 @@ const App = (() => {
     feedbackTimer = setTimeout(() => toast.classList.remove('show'), 2500);
   }
 
-  return { init, navigateTo, showFeedback };
+  function getCurrentScreen() { return currentScreen; }
+
+  return { init, navigateTo, showFeedback, renderHome, getCurrentScreen };
 })();
 
 document.addEventListener('DOMContentLoaded', () => App.init());

@@ -106,5 +106,18 @@ const Storage = (() => {
     return 0;
   }
 
-  return { getStreak, recordClear, isClear, getTotalSolved, checkStreakValidity };
+  // Firebaseから取得したデータでローカルストレージを同期
+  function syncFromFirebase(data) {
+    if (data.currentStreak !== undefined) save(KEYS.STREAK, data.currentStreak);
+    if (data.maxStreak !== undefined) save(KEYS.MAX_STREAK, data.maxStreak);
+    if (data.lastPlayed !== undefined) save(KEYS.LAST_PLAYED, data.lastPlayed);
+    if (data.totalClears !== undefined) save(KEYS.TOTAL_SOLVED, data.totalClears);
+    if (data.clearedIds && Array.isArray(data.clearedIds)) {
+      const cleared = load(KEYS.CLEARED, {});
+      data.clearedIds.forEach(id => { cleared[id] = cleared[id] || { clearedAt: todayStr() } });
+      save(KEYS.CLEARED, cleared);
+    }
+  }
+
+  return { getStreak, recordClear, isClear, getTotalSolved, checkStreakValidity, syncFromFirebase };
 })();

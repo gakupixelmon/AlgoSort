@@ -740,6 +740,7 @@
   overflow-y: hidden;
   scrollbar-width: none; /* Firefox: hide scrollbar by default for cleaner look */
   flex: 1;
+  min-width: 0;
   line-height: 1.45;
   /* リガチャ無効化: != が ≠ に、== が ═ に変換されるのを防ぐ */
   font-feature-settings: 'liga' 0, 'calt' 0;

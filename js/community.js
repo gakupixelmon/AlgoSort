@@ -120,6 +120,8 @@ const CommunityStats = (() => {
         // 今日の日付文字列 YYYY-MM-DD
         const today = new Date();
         const dateStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        
+        const streakInfo = window.Storage ? Storage.getStreak() : null;
 
         const batch = db.batch();
 
@@ -139,6 +141,9 @@ const CommunityStats = (() => {
           totalClears:              firebase.firestore.FieldValue.increment(1),
           clearedIds:               firebase.firestore.FieldValue.arrayUnion(problemId),
           [`dailyActivity.${dateStr}`]: firebase.firestore.FieldValue.increment(1),
+          currentStreak: streakInfo ? streakInfo.current : 0,
+          maxStreak: streakInfo ? streakInfo.max : 0,
+          lastPlayed: streakInfo ? streakInfo.lastPlayed : null,
           displayName: user.displayName || '',
           avatarUrl:   user.photoURL   || '',
         }, { merge: true });
