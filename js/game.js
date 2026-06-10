@@ -858,7 +858,7 @@ const GameEngine = (() => {
 
     // 解説セクションのHTML（explanationが存在する場合のみ）
     const exp = problem.explanation;
-    let explanationHtml = '';
+      let explanationHtml = '';
     if (exp) {
       const pointsHtml = exp.points
         .map(p => `<li class="explanation-point">${escapeHtml(p)}</li>`)
@@ -873,12 +873,17 @@ const GameEngine = (() => {
         ? `<div class="explanation-tip"><span class="tip-icon">💡</span><span>${escapeHtml(exp.tip)}</span></div>`
         : '';
       explanationHtml = `
-        <div class="solution-explanation-section">
-          <div class="explanation-label">📖 解説</div>
+        <div class="solution-explanation-section" style="border:none; height:100%; overflow-y:auto; padding-bottom:32px;">
           <p class="explanation-summary">${escapeHtml(exp.summary)}</p>
           <ul class="explanation-points">${pointsHtml}</ul>
           ${complexityHtml}
           ${tipHtml}
+        </div>
+      `;
+    } else {
+      explanationHtml = `
+        <div class="solution-explanation-section" style="border:none; height:100%; overflow-y:auto; display:flex; align-items:center; justify-content:center; color:var(--text-muted);">
+          <p>この問題には解説がありません</p>
         </div>
       `;
     }
@@ -895,19 +900,37 @@ const GameEngine = (() => {
             <div class="solution-msg">${scoreMessages[score] || ''}</div>
           </div>
         </div>
-        <div class="solution-code-section">
-          <div class="solution-code-label">
-            <span>✅ 正しいコード</span>
-            <div style="display:flex; align-items:center; gap:8px;">
-              <button id="solution-copy-btn" class="solution-copy-btn" title="コードをコピー">📋 コピー</button>
-              <span class="solution-lang-badge lang-${problem.language}">${langLabel}</span>
+
+        <div class="solution-tabs" style="display:flex; border-bottom: 1px solid var(--border);">
+          <button class="solution-tab active" data-page="0" style="flex:1; background:transparent; border:none; padding:12px; color:var(--accent-purple); font-weight:bold; cursor:pointer; border-bottom: 2px solid var(--accent-purple); font-size:13px; transition:0.2s;">📖 解説</button>
+          <button class="solution-tab" data-page="1" style="flex:1; background:transparent; border:none; padding:12px; color:var(--text-secondary); font-weight:bold; cursor:pointer; border-bottom: 2px solid transparent; font-size:13px; transition:0.2s;">💻 正解コード</button>
+        </div>
+
+        <div id="solution-slider" style="flex:1; display:flex; overflow-x:auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-behavior: smooth;">
+          <div class="solution-page" style="flex: 0 0 100%; width: 100%; scroll-snap-align: start; overflow-y: hidden; display:flex; flex-direction:column; position:relative;">
+            ${explanationHtml}
+          </div>
+          <div class="solution-page" style="flex: 0 0 100%; width: 100%; scroll-snap-align: start; overflow-y: hidden; display:flex; flex-direction:column; position:relative;">
+            <div class="solution-code-section" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+              <div class="solution-code-label" style="position:sticky; top:0; z-index:10;">
+                <span>✅ 正しいコード</span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <button id="solution-copy-btn" class="solution-copy-btn" title="コードをコピー">📋 コピー</button>
+                  <span class="solution-lang-badge lang-${problem.language}">${langLabel}</span>
+                </div>
+              </div>
+              <div class="solution-code-wrapper" style="flex:1; overflow-y:auto; padding-bottom:32px;">
+                <pre class="solution-pre"><code id="solution-code-content"></code></pre>
+              </div>
             </div>
           </div>
-          <div class="solution-code-wrapper">
-            <pre class="solution-pre"><code id="solution-code-content"></code></pre>
-          </div>
         </div>
-        ${explanationHtml}
+        
+        <div class="solution-page-indicator" style="display:flex; justify-content:center; gap:8px; padding:8px 0; border-top:1px solid var(--border);">
+          <span class="solution-dot active" style="width:8px; height:8px; border-radius:50%; background:var(--accent-purple); transition:0.3s;"></span>
+          <span class="solution-dot" style="width:8px; height:8px; border-radius:50%; background:var(--border); transition:0.3s;"></span>
+        </div>
+
         <div class="solution-modal-footer">
           <button id="solution-next-btn" class="btn btn-primary">${nextBtnLabel}</button>
         </div>
@@ -915,6 +938,48 @@ const GameEngine = (() => {
     `;
 
     document.body.appendChild(modal);
+
+    // スライダーのタブとドットの連動ロジック
+    const sliderEl = document.getElementById('solution-slider');
+    const tabs = modal.querySelectorAll('.solution-tab');
+    const dots = modal.querySelectorAll('.solution-dot');
+    
+    function updateActivePage(pageIndex) {
+      tabs.forEach((tab, i) => {
+        if (i === pageIndex) {
+          tab.classList.add('active');
+          tab.style.color = 'var(--accent-purple)';
+          tab.style.borderBottomColor = 'var(--accent-purple)';
+        } else {
+          tab.classList.remove('active');
+          tab.style.color = 'var(--text-secondary)';
+          tab.style.borderBottomColor = 'transparent';
+        }
+      });
+      dots.forEach((dot, i) => {
+        if (i === pageIndex) {
+          dot.classList.add('active');
+          dot.style.background = 'var(--accent-purple)';
+        } else {
+          dot.classList.remove('active');
+          dot.style.background = 'var(--border)';
+        }
+      });
+    }
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => {
+        const width = sliderEl.clientWidth;
+        sliderEl.scrollTo({ left: width * i, behavior: 'smooth' });
+        updateActivePage(i);
+      });
+    });
+
+    sliderEl.addEventListener('scroll', () => {
+      const width = sliderEl.clientWidth;
+      const pageIndex = Math.round(sliderEl.scrollLeft / width);
+      updateActivePage(pageIndex);
+    });
 
     // コード行を行番号付きで追加
     const codeEl = document.getElementById('solution-code-content');
