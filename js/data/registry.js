@@ -70,6 +70,14 @@ const CATEGORIES = window.CATEGORIES = [
     available: true,
     randomEligible: false,   // ← ランダムモードには出題しない
   },
+  {
+    id: 'competitive',
+    label: '競技プログラミング',
+    icon: '🏆',
+    color: '#facc15',
+    available: true,
+    randomEligible: true,
+  },
 ];
 
 // ── DataManager ───────────────────────────────────────────
