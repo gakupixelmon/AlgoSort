@@ -30,9 +30,9 @@
   blocks: [
     { id: 0, code: 'bool isValid(string s) {' },
     { id: 1, code: '    stack<char> st;' },
-    { id: 2, code: '    map<char,char> match = {{")", "("}, {"]", "["}, {"}", "{"}};' },
+    { id: 2, code: "    map<char,char> match = {{')', '('}, {']', '['}, {'}', '{'}};" },
     { id: 3, code: '    for (char c : s) {' },
-    { id: 4, code: '        if (c == "(" || c == "[" || c == "{") {' },
+    { id: 4, code: "        if (c == '(' || c == '[' || c == '{') {" },
     { id: 5, code: '            st.push(c);' },
     { id: 6, code: '        } else {' },
     { id: 7, code: '            if (st.empty() || st.top() != match[c]) return false;' },

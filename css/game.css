@@ -738,7 +738,8 @@
   white-space: pre;
   overflow-x: auto;
   overflow-y: hidden;
-  scrollbar-width: none; /* Firefox: hide scrollbar by default for cleaner look */
+  scrollbar-width: thin; /* Firefox: 常時表示（横スクロール可能と分かるように） */
+  scrollbar-color: transparent transparent; /* 通常時は透明，hover時に表示 */
   flex: 1;
   min-width: 0;
   line-height: 1.45;
@@ -747,9 +748,9 @@
   font-variant-ligatures: none;
 }
 
-/* Hover時にスクロールバーを表示（Webkit） */
+/* Webkit: 常時は透明、hover時にスクロールバー表示 */
 .block-code::-webkit-scrollbar {
-  height: 2px;
+  height: 3px;
 }
 .block-code::-webkit-scrollbar-track {
   background: transparent;
@@ -757,12 +758,13 @@
 .block-code::-webkit-scrollbar-thumb {
   background: transparent;
   border-radius: 2px;
+  transition: background 0.2s;
 }
 .code-block:hover .block-code::-webkit-scrollbar-thumb {
-  background: var(--border);
+  background: rgba(124, 58, 237, 0.5);
 }
 .code-block:hover .block-code {
-  scrollbar-width: thin;
+  scrollbar-color: rgba(124, 58, 237, 0.5) transparent;
 }
 
 /* タップアイコン（右端に表示） */
@@ -1506,6 +1508,9 @@
   /* リガチャ無効化 */
   font-feature-settings: 'liga' 0, 'calt' 0;
   font-variant-ligatures: none;
+  /* 横スクロール: 長い行がコンテナ幅を超えてもはみ出すよう min-width を指定 */
+  min-width: max-content;
+  width: 100%;
 }
 
 .solution-line {
