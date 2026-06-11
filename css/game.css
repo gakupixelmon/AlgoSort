@@ -735,36 +735,15 @@
   font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
   font-size: 11px;
   color: #e2e8f0;
-  white-space: pre;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: thin; /* Firefox: 常時表示（横スクロール可能と分かるように） */
-  scrollbar-color: transparent transparent; /* 通常時は透明，hover時に表示 */
+  white-space: pre-wrap;  /* 長いコードは折り返し表示（横スクロール廃止） */
+  word-break: break-all;
+  overflow: visible;
   flex: 1;
   min-width: 0;
   line-height: 1.45;
   /* リガチャ無効化: != が ≠ に、== が ═ に変換されるのを防ぐ */
   font-feature-settings: 'liga' 0, 'calt' 0;
   font-variant-ligatures: none;
-}
-
-/* Webkit: 常時は透明、hover時にスクロールバー表示 */
-.block-code::-webkit-scrollbar {
-  height: 3px;
-}
-.block-code::-webkit-scrollbar-track {
-  background: transparent;
-}
-.block-code::-webkit-scrollbar-thumb {
-  background: transparent;
-  border-radius: 2px;
-  transition: background 0.2s;
-}
-.code-block:hover .block-code::-webkit-scrollbar-thumb {
-  background: rgba(124, 58, 237, 0.5);
-}
-.code-block:hover .block-code {
-  scrollbar-color: rgba(124, 58, 237, 0.5) transparent;
 }
 
 /* タップアイコン（右端に表示） */
