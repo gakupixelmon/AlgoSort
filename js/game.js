@@ -499,6 +499,7 @@ const GameEngine = (() => {
 
     document.addEventListener('touchmove', onTouchMove, { passive: false });
     document.addEventListener('touchend', onTouchEnd);
+    document.addEventListener('touchcancel', onTouchCancel);
   }
 
   function startDrag(targetEl, touch) {
@@ -513,6 +514,7 @@ const GameEngine = (() => {
     dragClone.style.width = rect.width + 'px';
     dragClone.style.left = touch.clientX - dragOffsetX + 'px';
     dragClone.style.top = touch.clientY - dragOffsetY + 'px';
+    dragClone.style.pointerEvents = 'none'; // ヒットテスト干渉を防止
     document.body.appendChild(dragClone);
 
     draggingEl.classList.add('dragging');
@@ -537,9 +539,8 @@ const GameEngine = (() => {
     dragClone.style.left = touch.clientX - dragOffsetX + 'px';
     dragClone.style.top = touch.clientY - dragOffsetY + 'px';
 
-    dragClone.style.pointerEvents = 'none';
+    // pointer-events: none は startDrag で設定済みなので直接 elementFromPoint で判定可能
     const el = document.elementFromPoint(touch.clientX, touch.clientY);
-    dragClone.style.pointerEvents = '';
 
     const zone = el ? el.closest('.drop-zone') : null;
     document.querySelectorAll('.drop-zone').forEach((z) => z.classList.remove('drag-over'));
@@ -554,17 +555,28 @@ const GameEngine = (() => {
     isDragMode = false;
     document.removeEventListener('touchmove', onTouchMove);
     document.removeEventListener('touchend', onTouchEnd);
+    document.removeEventListener('touchcancel', onTouchCancel);
     if (draggingEl) draggingEl.classList.remove('dragging');
     if (dragClone) {
-      document.body.removeChild(dragClone);
+      try { document.body.removeChild(dragClone); } catch (_) {}
       dragClone = null;
     }
+    // 残存クローンを強制クリーンアップ（念のため）
+    document.querySelectorAll('.drag-clone').forEach((el) => {
+      try { document.body.removeChild(el); } catch (_) {}
+    });
     draggingEl = null;
+  }
+
+  // touchcancel: システムジェスチャー等でタッチが中断された場合の後始末
+  function onTouchCancel() {
+    cancelDragMode();
   }
 
   function onTouchEnd(e) {
     document.removeEventListener('touchmove', onTouchMove);
     document.removeEventListener('touchend', onTouchEnd);
+    document.removeEventListener('touchcancel', onTouchCancel);
 
     // 長押しタイマーをキャンセル
     if (longPressTimer) {
@@ -611,9 +623,13 @@ const GameEngine = (() => {
     // ① クローンを先に削除してから elementFromPoint を呼ぶ
     //   （クローンが残っているとヒットテストに干渉してドロップ先を誤検出する）
     if (dragClone) {
-      document.body.removeChild(dragClone);
+      try { document.body.removeChild(dragClone); } catch (_) {}
       dragClone = null;
     }
+    // 残存クローンを念のため強制クリーンアップ
+    document.querySelectorAll('.drag-clone').forEach((el) => {
+      try { document.body.removeChild(el); } catch (_) {}
+    });
 
     draggingEl.classList.remove('dragging');
     document.querySelectorAll('.drop-zone').forEach((z) => z.classList.remove('drag-over'));
