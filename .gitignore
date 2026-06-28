@@ -20,3 +20,6 @@ npm-debug.log*
 *.swp
 *.swo
 .vercel
+
+# AI Agent Note
+AI_AGENT_NOTE.md
