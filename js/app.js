@@ -54,19 +54,31 @@ const App = (() => {
 
   // ======= ホーム画面 =======
   function renderHome() {
-    const streak = Storage.getStreak();
     const currentStreak = Storage.checkStreakValidity();
+    const streakData = Storage.getStreak();
 
     const streakEl = document.getElementById('streak-count');
     const maxStreakEl = document.getElementById('max-streak');
     const totalEl = document.getElementById('total-solved');
 
     if (streakEl) streakEl.textContent = currentStreak;
-    if (maxStreakEl) maxStreakEl.textContent = streak.max;
+    if (maxStreakEl) maxStreakEl.textContent = streakData.max;
     if (totalEl) totalEl.textContent = Storage.getTotalSolved();
 
     const fireEl = document.getElementById('streak-fire');
     if (fireEl) fireEl.style.display = currentStreak > 0 ? 'inline' : 'none';
+
+    // チケット表示
+    const ticketArea = document.getElementById('streak-ticket-area');
+    const ticketCount = document.getElementById('ticket-count');
+    if (ticketArea && ticketCount) {
+      if (streakData.tickets > 0) {
+        ticketCount.textContent = streakData.tickets;
+        ticketArea.style.display = 'block';
+      } else {
+        ticketArea.style.display = 'none';
+      }
+    }
 
     const randomBtn = document.getElementById('btn-random');
     const categoryBtn = document.getElementById('btn-category');
