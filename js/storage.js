@@ -12,6 +12,7 @@ const Storage = (() => {
     TOTAL_SOLVED: 'algosort_total_solved',
     TICKETS: 'algosort_freeze_tickets',
     TICKET_PROGRESS: 'algosort_ticket_progress',
+    CATCHUP_PROGRESS: 'algosort_catchup_progress',
   };
 
   function load(key, defaultValue) {
@@ -44,6 +45,7 @@ const Storage = (() => {
       lastPlayed: load(KEYS.LAST_PLAYED, null),
       tickets: load(KEYS.TICKETS, 0),
       ticketProgress: load(KEYS.TICKET_PROGRESS, 0),
+      catchupProgress: load(KEYS.CATCHUP_PROGRESS, 0),
     };
   }
 
@@ -57,12 +59,24 @@ const Storage = (() => {
     let streak = load(KEYS.STREAK, 0);
     let tickets = load(KEYS.TICKETS, 0);
     let ticketProgress = load(KEYS.TICKET_PROGRESS, 0);
+    let catchupProgress = load(KEYS.CATCHUP_PROGRESS, 0);
+    let maxStreak = load(KEYS.MAX_STREAK, 0);
+    let bonusTriggered = false;
 
     if (lastPlayed === today) {
       // 今日すでにプレイ済み → ストリークはそのまま
     } else if (lastPlayed === getPrevDay(today)) {
       // 昨日もプレイ → 連続継続
       streak += 1;
+      catchupProgress += 1;
+      
+      if (catchupProgress >= 15) {
+        catchupProgress = 0;
+        if (streak < maxStreak) {
+          streak += 1;
+          bonusTriggered = true;
+        }
+      }
       
       // チケットがない状態で連続プレイしたらプログレスを進める
       if (tickets < 1) {
@@ -77,15 +91,19 @@ const Storage = (() => {
     } else {
       // 途切れた or 初回
       streak = 1;
+      catchupProgress = 1;
       ticketProgress = (tickets < 1) ? 1 : 0;
       save(KEYS.TICKET_PROGRESS, ticketProgress);
     }
 
+    save(KEYS.CATCHUP_PROGRESS, catchupProgress);
     save(KEYS.LAST_PLAYED, today);
     save(KEYS.STREAK, streak);
 
-    const maxStreak = load(KEYS.MAX_STREAK, 0);
-    if (streak > maxStreak) save(KEYS.MAX_STREAK, streak);
+    if (streak > maxStreak) {
+      maxStreak = streak;
+      save(KEYS.MAX_STREAK, maxStreak);
+    }
 
     // クリア済み問題リストに追加
     const cleared = load(KEYS.CLEARED, {});
@@ -96,7 +114,7 @@ const Storage = (() => {
     const total = load(KEYS.TOTAL_SOLVED, 0);
     save(KEYS.TOTAL_SOLVED, total + 1);
 
-    return streak;
+    return { newStreak: streak, bonusTriggered };
   }
 
   function getPrevDay(dateStr) {
@@ -120,6 +138,8 @@ const Storage = (() => {
     let lastPlayed = load(KEYS.LAST_PLAYED, null);
     let streak = load(KEYS.STREAK, 0);
     let tickets = load(KEYS.TICKETS, 0);
+    let catchupProgress = load(KEYS.CATCHUP_PROGRESS, 0);
+    let maxStreak = load(KEYS.MAX_STREAK, 0);
 
     if (!lastPlayed) return 0;
     if (lastPlayed === today) return streak;
@@ -134,6 +154,14 @@ const Storage = (() => {
       
       streak += 1;
       tickets -= 1;
+      catchupProgress += 1;
+      
+      if (catchupProgress >= 15) {
+        catchupProgress = 0;
+        if (streak < maxStreak) {
+          streak += 1;
+        }
+      }
       modified = true;
     }
 
@@ -141,8 +169,11 @@ const Storage = (() => {
       save(KEYS.LAST_PLAYED, lastPlayed);
       save(KEYS.STREAK, streak);
       save(KEYS.TICKETS, tickets);
-      const maxStreak = load(KEYS.MAX_STREAK, 0);
-      if (streak > maxStreak) save(KEYS.MAX_STREAK, streak);
+      save(KEYS.CATCHUP_PROGRESS, catchupProgress);
+      if (streak > maxStreak) {
+        maxStreak = streak;
+        save(KEYS.MAX_STREAK, maxStreak);
+      }
     }
 
     if (lastPlayed === today || lastPlayed === getPrevDay(today)) {
@@ -161,6 +192,7 @@ const Storage = (() => {
     if (data.lastPlayed !== undefined) save(KEYS.LAST_PLAYED, data.lastPlayed);
     if (data.tickets !== undefined) save(KEYS.TICKETS, data.tickets);
     if (data.ticketProgress !== undefined) save(KEYS.TICKET_PROGRESS, data.ticketProgress);
+    if (data.catchupProgress !== undefined) save(KEYS.CATCHUP_PROGRESS, data.catchupProgress);
     if (data.totalClears !== undefined) save(KEYS.TOTAL_SOLVED, data.totalClears);
     if (data.clearedIds && Array.isArray(data.clearedIds)) {
       const cleared = load(KEYS.CLEARED, {});
