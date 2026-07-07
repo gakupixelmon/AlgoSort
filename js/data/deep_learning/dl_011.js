@@ -7,7 +7,7 @@
   categoryLabel: '深層学習',
   difficulty: 5,
   language: 'python',
-  description: '【Self-Attention とは】Transformer の中核となる機構です。入力系列の各要素が「他のどの要素を、どのくらい参照すべきか」を学習します。Query（Q）・Key（K）・Value（V）の3つの行列を使い、Q と K の内積でスコアを計算し Softmax で確率化、それを V に掛けることで「注目度に応じた情報の重み付き和」を得ます。\n\nNumPy を使って Scaled Dot-Product Attention を実装せよ。スコアを sqrt(d_k) でスケーリングして数値安定化し、Softmax で正規化したあと V の重み付き和を返す。',
+  description: '【Self-Attention とは】Transformer の中核となる機構です。入力系列の各要素が「他のどの要素を、どのくらい参照すべきか」を学習します。Query（Q）・Key（K）・Value（V）の3つの行列を使い、Q と K の内積でスコアを計算し Softmax で確率化、それを V に掛けることで「注目度に応じた情報の重み付き和」を得ます。\n\n【数学的背景：なぜ $\sqrt{d_k}$ でスケーリングするのか？】\n**Definition (Scaled Dot-Product):**\n独立同分布な確率変数 $q_i, k_i \sim \mathcal{N}(0, 1)$ $(i=1,\dots,d_k)$ に対し、内積を $S = \sum_{i=1}^{d_k} q_i k_i$ と定義する。\n\n**Theorem:**\n内積 $S$ の期待値は $\mathbb{E}[S] = 0$、分散は $\mathrm{Var}(S) = d_k$ である。\n\n**Proof:**\n$q_i, k_i$ は独立であるため、$\mathbb{E}[q_i k_i] = \mathbb{E}[q_i]\mathbb{E}[k_i] = 0 \cdot 0 = 0$。\n分散について、$\mathrm{Var}(q_i k_i) = \mathbb{E}[(q_i k_i)^2] - (\mathbb{E}[q_i k_i])^2 = \mathbb{E}[q_i^2]\mathbb{E}[k_i^2] = 1 \cdot 1 = 1$。\n$S$ は $d_k$ 個の独立な確率変数の和であるため、$\mathrm{Var}(S) = \sum_{i=1}^{d_k} \mathrm{Var}(q_i k_i) = d_k$ となる。 $\blacksquare$\n\n**Conclusion:**\n$d_k$ が大きい場合、内積 $S$ の分散も大きくなり、Softmax関数 $\sigma(x_i) = \frac{e^{x_i}}{\sum_j e^{x_j}}$ への入力が極端な値を取りやすくなる。これにより、最大値に対応するSoftmaxの出力が1に近づき、それ以外が0に漸近するため、勾配が消失 (Vanishing Gradient) してしまう。これを防ぐため、内積を標準偏差 $\sqrt{d_k}$ で割ることで、スケーリング後のスコアの分散を1に正規化している。\n\nNumPy を使って Scaled Dot-Product Attention を実装せよ。スコアを sqrt(d_k) でスケーリングして数値安定化し、Softmax で正規化したあと V の重み付き和を返す。',
   inputFormat: {
     params: [
       { name: 'Q', type: 'np.ndarray', desc: 'クエリ行列（shape: [seq_len, d_k]）' },
