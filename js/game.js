@@ -691,13 +691,17 @@ const GameEngine = (() => {
 
   // 正解判定：partialOrder（部分順序制約）があれば制約チェック、なければ correctOrders と一致するか判定
   // partialOrder: [[a, b], ...] = 「ブロック id:a は id:b より前に来なければならない」制約リスト
+  // partialOrders: [partialOrder, ...] = いずれかの制約リストを満たせば正解
+  // atomicGroups: [[a, b, c], ...] = 連続した一まとまりとして配置されるべきブロック列
   //
   // 【同一表示テキスト対応】
   // } など trimStart() 後に同一テキストになるブロックは視覚的に区別不可。
   // そのため同一テキストを持つブロック群の全順列を試し、
   // いずれか一つが全制約を満たせば正解とする。
   function isOrderCorrect(order, problem) {
-    if (problem.partialOrder && problem.partialOrder.length > 0) {
+    const partialOrderCandidates = problem.partialOrders || (problem.partialOrder ? [problem.partialOrder] : []);
+
+    if (partialOrderCandidates.length > 0) {
       const blocks = problem.blocks;
 
       // 各ブロックの表示テキスト（trimStart済み）を取得
@@ -715,11 +719,25 @@ const GameEngine = (() => {
       // 重複するグループ（サイズ2以上）のみ抽出
       const dupeGroups = Object.values(textGroups).filter(g => g.length > 1);
 
+      const checkAtomicGroups = (testOrder) => {
+        const indexMap = {};
+        testOrder.forEach((id, i) => { indexMap[id] = i; });
+        return (problem.atomicGroups || []).every((group) => {
+          for (let i = 0; i < group.length; i++) {
+            if (indexMap[group[i]] === undefined) return false;
+            if (i > 0 && indexMap[group[i]] !== indexMap[group[i - 1]] + 1) return false;
+          }
+          return true;
+        });
+      };
+
       // partialOrder 制約チェック（指定orderに対して）
       const checkConstraints = (testOrder) => {
         const indexMap = {};
         testOrder.forEach((id, i) => { indexMap[id] = i; });
-        return problem.partialOrder.every(([a, b]) => indexMap[a] < indexMap[b]);
+        return partialOrderCandidates.some((partialOrder) =>
+          partialOrder.every(([a, b]) => indexMap[a] < indexMap[b])
+        ) && checkAtomicGroups(testOrder);
       };
 
       // 重複グループがなければそのままチェック
@@ -821,13 +839,16 @@ const GameEngine = (() => {
     let representativeOrder;
     if (problem.correctOrders && problem.correctOrders.length > 0) {
       representativeOrder = problem.correctOrders[0];
-    } else if (problem.partialOrder && problem.partialOrder.length > 0) {
+    } else if ((problem.partialOrders && problem.partialOrders.length > 0) || (problem.partialOrder && problem.partialOrder.length > 0)) {
       // トポロジカルソート（Kahn's algorithm）で partialOrder を満たす代表順を生成
       const blockIds = problem.blocks.map((b) => b.id);
+      const blockIndex = {};
+      blockIds.forEach((id, i) => { blockIndex[id] = i; });
+      const representativePartialOrder = problem.partialOrders ? problem.partialOrders[0] : problem.partialOrder;
       const inDegree = {};
       const adj = {};
       blockIds.forEach((id) => { inDegree[id] = 0; adj[id] = []; });
-      problem.partialOrder.forEach(([a, b]) => {
+      representativePartialOrder.forEach(([a, b]) => {
         if (inDegree[b] !== undefined && adj[a] !== undefined) {
           adj[a].push(b);
           inDegree[b]++;
@@ -836,6 +857,7 @@ const GameEngine = (() => {
       const queue = blockIds.filter((id) => inDegree[id] === 0);
       representativeOrder = [];
       while (queue.length > 0) {
+        queue.sort((a, b) => blockIndex[a] - blockIndex[b]);
         const cur = queue.shift();
         representativeOrder.push(cur);
         (adj[cur] || []).forEach((next) => {

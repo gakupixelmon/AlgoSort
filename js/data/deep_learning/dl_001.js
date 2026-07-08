@@ -33,7 +33,15 @@
     { id: 6, code: '    A2 = sigmoid(Z2)' },
     { id: 7, code: '    return A2' },
   ],
-  correctOrders: [[0, 1, 2, 3, 4, 5, 6, 7]],
+  // sigmoid と forward_pass の関数定義順は Python ではどちらでも可
+  atomicGroups: [
+    [0, 1],
+    [2, 3, 4, 5, 6, 7],
+  ],
+  partialOrder: [
+    [0, 1],
+    [2, 3], [3, 4], [4, 5], [5, 6], [6, 7],
+  ],
   hints: [
     'ピン留めの import numpy as np は先頭に固定済み。sigmoid 関数の定義から始める',
     '第1層: Z1 = X @ W1 + b1 を計算し sigmoid で A1 を得る',

@@ -32,7 +32,15 @@
     { id: 6,  code: '    log_probs = np.log(probs[np.arange(n), y_true] + 1e-8)' },
     { id: 7,  code: '    return -np.mean(log_probs)' },
   ],
-  correctOrders: [[0, 1, 2, 3, 4, 5, 6, 7]],
+  // softmax と cross_entropy は独立した関数なので定義順はどちらでも可
+  atomicGroups: [
+    [0, 1, 2, 3],
+    [4, 5, 6, 7],
+  ],
+  partialOrder: [
+    [0, 1], [1, 2], [2, 3],
+    [4, 5], [5, 6], [6, 7],
+  ],
   hints: [
     'Softmax: まず各行の最大値を引いて数値安定化（z_stable）。次に exp を取り、行ごとに合計で割る',
     'cross_entropy の引数はすでに Softmax 済みの確率行列 probs と正解インデックス y_true',
