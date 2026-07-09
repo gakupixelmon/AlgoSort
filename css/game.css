@@ -54,6 +54,7 @@
   margin: 0 var(--space-md) var(--space-xl);
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--space-lg);
 }
 
@@ -105,6 +106,31 @@
 .streak-stat span {
   color: var(--text-primary);
   font-weight: 600;
+}
+
+.streak-today-status {
+  min-width: 96px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  background: rgba(139, 148, 158, 0.08);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.streak-today-status.done {
+  color: #86efac;
+  border-color: rgba(16, 185, 129, 0.45);
+  background: rgba(16, 185, 129, 0.14);
+}
+
+.streak-today-status.pending {
+  color: #fcd34d;
+  border-color: rgba(245, 158, 11, 0.45);
+  background: rgba(245, 158, 11, 0.12);
 }
 
 /* ホームボタン */

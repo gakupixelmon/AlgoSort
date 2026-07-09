@@ -34,7 +34,11 @@ const Storage = (() => {
 
   // 今日の日付を YYYY-MM-DD 形式で返す
   function todayStr() {
-    return new Date().toISOString().slice(0, 10);
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   }
 
   // ストリーク情報を取得
@@ -47,6 +51,10 @@ const Storage = (() => {
       ticketProgress: load(KEYS.TICKET_PROGRESS, 0),
       catchupProgress: load(KEYS.CATCHUP_PROGRESS, 0),
     };
+  }
+
+  function hasPlayedToday() {
+    return load(KEYS.LAST_PLAYED, null) === todayStr();
   }
 
   // 問題クリア時にストリーク更新
@@ -201,5 +209,5 @@ const Storage = (() => {
     }
   }
 
-  return { getStreak, recordClear, isClear, getTotalSolved, checkStreakValidity, syncFromFirebase };
+  return { getStreak, hasPlayedToday, recordClear, isClear, getTotalSolved, checkStreakValidity, syncFromFirebase };
 })();

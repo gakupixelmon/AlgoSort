@@ -60,10 +60,17 @@ const App = (() => {
     const streakEl = document.getElementById('streak-count');
     const maxStreakEl = document.getElementById('max-streak');
     const totalEl = document.getElementById('total-solved');
+    const todayStatusEl = document.getElementById('today-clear-status');
+    const hasPlayedToday = Storage.hasPlayedToday();
 
     if (streakEl) streakEl.textContent = currentStreak;
     if (maxStreakEl) maxStreakEl.textContent = streakData.max;
     if (totalEl) totalEl.textContent = Storage.getTotalSolved();
+    if (todayStatusEl) {
+      todayStatusEl.textContent = hasPlayedToday ? '今日 完了' : '今日 未完了';
+      todayStatusEl.classList.toggle('done', hasPlayedToday);
+      todayStatusEl.classList.toggle('pending', !hasPlayedToday);
+    }
 
     const fireEl = document.getElementById('streak-fire');
     if (fireEl) fireEl.style.display = currentStreak > 0 ? 'inline' : 'none';
