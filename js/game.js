@@ -35,6 +35,7 @@ const GameEngine = (() => {
   let hintPrevBtn = null;
   let hintNextBtn = null;
   let hintCounter = null;
+  let copyAnswerBtn = null;
   let checkBtn = null;
   let giveUpBtn = null;
 
@@ -78,6 +79,7 @@ const GameEngine = (() => {
     choicesZone = elements.choicesZone;
     hintBtn = elements.hintBtn;
     hintText = elements.hintText;
+    copyAnswerBtn = elements.copyAnswerBtn;
     checkBtn = elements.checkBtn;
     giveUpBtn = elements.giveUpBtn;
 
@@ -135,7 +137,15 @@ const GameEngine = (() => {
       hintNextBtn.addEventListener('click', () => goHint(1));
     }
 
-    // ⑤ 正解チェックボタン（重複登録防止）
+    // ⑤ 解答欄コピーボタン（重複登録防止）
+    if (copyAnswerBtn) {
+      const newBtn = copyAnswerBtn.cloneNode(true);
+      copyAnswerBtn.parentNode.replaceChild(newBtn, copyAnswerBtn);
+      copyAnswerBtn = newBtn;
+      copyAnswerBtn.addEventListener('click', handleCopyAnswerCode);
+    }
+
+    // ⑥ 正解チェックボタン（重複登録防止）
     if (checkBtn) {
       const newBtn = checkBtn.cloneNode(true);
       checkBtn.parentNode.replaceChild(newBtn, checkBtn);
@@ -143,7 +153,7 @@ const GameEngine = (() => {
       checkBtn.addEventListener('click', checkAnswer);
     }
 
-    // ⑥ 諦めるボタン（重複登録防止）
+    // ⑦ 諦めるボタン（重複登録防止）
     if (giveUpBtn) {
       const newBtn = giveUpBtn.cloneNode(true);
       giveUpBtn.parentNode.replaceChild(newBtn, giveUpBtn);
@@ -151,7 +161,7 @@ const GameEngine = (() => {
       giveUpBtn.addEventListener('click', handleGiveUp);
     }
 
-    // ⑦ スワイプページ初期化
+    // ⑧ スワイプページ初期化
     initSwipePages();
   }
 
@@ -784,6 +794,71 @@ const GameEngine = (() => {
     }
   }
 
+  function copyTextToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+
+    return new Promise((resolve, reject) => {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.top = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+
+      try {
+        const copied = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        copied ? resolve() : reject(new Error('execCommand copy failed'));
+      } catch (err) {
+        document.body.removeChild(textarea);
+        reject(err);
+      }
+    });
+  }
+
+  function getAnswerCodeText() {
+    if (!currentProblem || !answerZone) return '';
+
+    const lines = [];
+    answerZone.querySelectorAll('.code-block').forEach((el) => {
+      const blockId = el.dataset.blockId;
+      if (blockId !== undefined) {
+        const block = currentProblem.blocks.find((b) => b.id === parseInt(blockId));
+        lines.push(block ? block.code : (el.querySelector('.block-code')?.textContent || ''));
+      } else {
+        lines.push(el.querySelector('.block-code')?.textContent || '');
+      }
+    });
+
+    return lines.join('\n');
+  }
+
+  function handleCopyAnswerCode() {
+    const codeText = getAnswerCodeText();
+    if (!codeText.trim()) {
+      showFeedback('コピーするコードがありません。', 'warn');
+      return;
+    }
+
+    copyTextToClipboard(codeText).then(() => {
+      if (copyAnswerBtn) {
+        copyAnswerBtn.textContent = '✓ コピー完了';
+        copyAnswerBtn.classList.add('copied');
+        setTimeout(() => {
+          copyAnswerBtn.textContent = '📋 コピー';
+          copyAnswerBtn.classList.remove('copied');
+        }, 1600);
+      }
+      showFeedback('解答欄のコードをコピーしました。', 'success');
+    }).catch((err) => {
+      console.error('Failed to copy answer code: ', err);
+      showFeedback('コピーに失敗しました。', 'error');
+    });
+  }
+
   // ======= 諦める =======
   function handleGiveUp() {
     if (!currentProblem) return;
@@ -1053,7 +1128,7 @@ const GameEngine = (() => {
     if (copyBtn) {
       copyBtn.addEventListener('click', () => {
         const codeText = codeLines.join('\\n');
-        navigator.clipboard.writeText(codeText).then(() => {
+        copyTextToClipboard(codeText).then(() => {
           copyBtn.textContent = '✓ コピー完了';
           copyBtn.classList.add('copied');
           setTimeout(() => {

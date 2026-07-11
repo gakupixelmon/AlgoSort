@@ -258,6 +258,11 @@ h3 { font-size: 16px; font-weight: 600; }
   color: #fcd34d;
 }
 
+.feedback-toast.success {
+  border-color: var(--accent-green);
+  color: #86efac;
+}
+
 /* ===== Animations ===== */
 @keyframes shake {
   0%, 100% { transform: translateX(0); }

@@ -385,6 +385,7 @@ const App = (() => {
         choicesZone: document.getElementById('choices-zone'),
         hintBtn: document.getElementById('hint-btn'),
         hintText: document.getElementById('hint-text'),
+        copyAnswerBtn: document.getElementById('copy-answer-btn'),
         checkBtn: document.getElementById('check-btn'),
         giveUpBtn: document.getElementById('give-up-btn'),
       },
