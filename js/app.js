@@ -79,12 +79,7 @@ const App = (() => {
     const ticketArea = document.getElementById('streak-ticket-area');
     const ticketCount = document.getElementById('ticket-count');
     if (ticketArea && ticketCount) {
-      if (streakData.tickets > 0) {
-        ticketCount.textContent = streakData.tickets;
-        ticketArea.style.display = 'block';
-      } else {
-        ticketArea.style.display = 'none';
-      }
+      ticketArea.style.display = 'none';
     }
 
     const randomBtn = document.getElementById('btn-random');

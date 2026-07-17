@@ -13,6 +13,7 @@ const Storage = (() => {
     TICKETS: 'algosort_freeze_tickets',
     TICKET_PROGRESS: 'algosort_ticket_progress',
     CATCHUP_PROGRESS: 'algosort_catchup_progress',
+    DECAY_APPLIED_MISSED_DAYS: 'algosort_decay_applied_missed_days',
   };
 
   function load(key, defaultValue) {
@@ -41,6 +42,30 @@ const Storage = (() => {
     return `${y}-${m}-${day}`;
   }
 
+  function parseLocalDate(dateStr) {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  function formatLocalDate(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  function daysBetween(fromDateStr, toDateStr) {
+    const from = parseLocalDate(fromDateStr);
+    const to = parseLocalDate(toDateStr);
+    return Math.floor((to - from) / 86400000);
+  }
+
+  function applyMissedDayDecay(streak, missedDayNumber) {
+    if (missedDayNumber === 1) return Math.max(1, Math.floor(streak * 0.5));
+    if (missedDayNumber === 2) return Math.max(1, Math.floor(streak * 0.4));
+    return 0;
+  }
+
   // ストリーク情報を取得
   function getStreak() {
     return {
@@ -65,18 +90,18 @@ const Storage = (() => {
     const today = todayStr();
     const lastPlayed = load(KEYS.LAST_PLAYED, null);
     let streak = load(KEYS.STREAK, 0);
-    let tickets = load(KEYS.TICKETS, 0);
-    let ticketProgress = load(KEYS.TICKET_PROGRESS, 0);
     let catchupProgress = load(KEYS.CATCHUP_PROGRESS, 0);
     let maxStreak = load(KEYS.MAX_STREAK, 0);
     let bonusTriggered = false;
 
     if (lastPlayed === today) {
       // 今日すでにプレイ済み → ストリークはそのまま
+      save(KEYS.DECAY_APPLIED_MISSED_DAYS, 0);
     } else if (lastPlayed === getPrevDay(today)) {
       // 昨日もプレイ → 連続継続
       streak += 1;
       catchupProgress += 1;
+      save(KEYS.DECAY_APPLIED_MISSED_DAYS, 0);
       
       if (catchupProgress >= 15) {
         catchupProgress = 0;
@@ -85,23 +110,16 @@ const Storage = (() => {
           bonusTriggered = true;
         }
       }
-      
-      // チケットがない状態で連続プレイしたらプログレスを進める
-      if (tickets < 1) {
-        ticketProgress += 1;
-        if (ticketProgress >= 7) {
-          tickets = 1;
-          ticketProgress = 0;
-          save(KEYS.TICKETS, tickets);
-        }
-        save(KEYS.TICKET_PROGRESS, ticketProgress);
-      }
+    } else if (lastPlayed && daysBetween(lastPlayed, today) <= 3 && streak > 0) {
+      // 1〜2日空いた場合は、減衰後のストリークに今日分を加えて復帰する
+      streak += 1;
+      catchupProgress = 1;
+      save(KEYS.DECAY_APPLIED_MISSED_DAYS, 0);
     } else {
-      // 途切れた or 初回
+      // 初回、または3日以上空いて完全消滅した状態から再開
       streak = 1;
       catchupProgress = 1;
-      ticketProgress = (tickets < 1) ? 1 : 0;
-      save(KEYS.TICKET_PROGRESS, ticketProgress);
+      save(KEYS.DECAY_APPLIED_MISSED_DAYS, 0);
     }
 
     save(KEYS.CATCHUP_PROGRESS, catchupProgress);
@@ -126,9 +144,9 @@ const Storage = (() => {
   }
 
   function getPrevDay(dateStr) {
-    const d = new Date(dateStr);
+    const d = parseLocalDate(dateStr);
     d.setDate(d.getDate() - 1);
-    return d.toISOString().slice(0, 10);
+    return formatLocalDate(d);
   }
 
   function isClear(problemId) {
@@ -140,57 +158,34 @@ const Storage = (() => {
     return load(KEYS.TOTAL_SOLVED, 0);
   }
 
-  // ストリークが今日有効かチェック（日付が変わっていたらリセット、チケットがあれば自動消費）
+  // ストリークが今日有効かチェック（日付が変わっていたら減衰を反映）
   function checkStreakValidity() {
     const today = todayStr();
     let lastPlayed = load(KEYS.LAST_PLAYED, null);
     let streak = load(KEYS.STREAK, 0);
-    let tickets = load(KEYS.TICKETS, 0);
-    let catchupProgress = load(KEYS.CATCHUP_PROGRESS, 0);
-    let maxStreak = load(KEYS.MAX_STREAK, 0);
+    let appliedMissedDays = load(KEYS.DECAY_APPLIED_MISSED_DAYS, 0);
 
     if (!lastPlayed) return 0;
-    if (lastPlayed === today) return streak;
-    if (lastPlayed === getPrevDay(today)) return streak; // 昨日までは有効
+    const elapsedDays = daysBetween(lastPlayed, today);
 
-    // 今日より2日以上前で、チケットがあれば消費して日付を埋める
-    let modified = false;
-    while (tickets > 0 && lastPlayed && lastPlayed < getPrevDay(today)) {
-      const d = new Date(lastPlayed);
-      d.setDate(d.getDate() + 1);
-      lastPlayed = d.toISOString().slice(0, 10);
-      
-      streak += 1;
-      tickets -= 1;
-      catchupProgress += 1;
-      
-      if (catchupProgress >= 15) {
-        catchupProgress = 0;
-        if (streak < maxStreak) {
-          streak += 1;
-        }
-      }
-      modified = true;
-    }
-
-    if (modified) {
-      save(KEYS.LAST_PLAYED, lastPlayed);
-      save(KEYS.STREAK, streak);
-      save(KEYS.TICKETS, tickets);
-      save(KEYS.CATCHUP_PROGRESS, catchupProgress);
-      if (streak > maxStreak) {
-        maxStreak = streak;
-        save(KEYS.MAX_STREAK, maxStreak);
-      }
-    }
-
-    if (lastPlayed === today || lastPlayed === getPrevDay(today)) {
+    if (elapsedDays <= 0) {
+      save(KEYS.DECAY_APPLIED_MISSED_DAYS, 0);
       return streak;
     }
 
-    // それでも届かない場合は途切れる
-    save(KEYS.STREAK, 0);
-    return 0;
+    const missedDays = elapsedDays - 1;
+    if (missedDays <= 0) {
+      save(KEYS.DECAY_APPLIED_MISSED_DAYS, 0);
+      return streak; // 昨日までは有効
+    }
+
+    for (let d = appliedMissedDays + 1; d <= missedDays; d++) {
+      streak = applyMissedDayDecay(streak, d);
+    }
+
+    save(KEYS.DECAY_APPLIED_MISSED_DAYS, missedDays);
+    save(KEYS.STREAK, streak);
+    return streak;
   }
 
   // Firebaseから取得したデータでローカルストレージを同期
