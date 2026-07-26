@@ -78,6 +78,14 @@ const CATEGORIES = window.CATEGORIES = [
     available: true,
     randomEligible: true,
   },
+  {
+    id: 'heuristic',
+    label: 'AtCoder ヒューリスティック',
+    icon: '🎯',
+    color: '#fb7185',
+    available: true,
+    randomEligible: false,
+  },
 ];
 
 // ── DataManager ───────────────────────────────────────────
