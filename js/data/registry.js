@@ -80,7 +80,7 @@ const CATEGORIES = window.CATEGORIES = [
   },
   {
     id: 'heuristic',
-    label: 'AtCoder ヒューリスティック',
+    label: 'ヒューリスティック最適化',
     icon: '🎯',
     color: '#fb7185',
     available: true,

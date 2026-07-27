@@ -1,10 +1,10 @@
-// ahc_002: 焼きなまし法の遷移受理 ★4 (C++)
+// heuristic_002: 焼きなまし法の遷移受理 ★4 (C++)
 // 悪化する遷移も温度に応じて受理し、局所最適から抜け出す
 (window.PROBLEMS_REGISTRY = window.PROBLEMS_REGISTRY || []).push({
-  id: 'ahc_002',
+  id: 'heuristic_002',
   title: '焼きなまし法の遷移受理',
   category: 'heuristic',
-  categoryLabel: 'AtCoder ヒューリスティック',
+  categoryLabel: 'ヒューリスティック最適化',
   difficulty: 4,
   language: 'cpp',
   description: '【焼きなまし法とは】\n焼きなまし法（Simulated Annealing）は、近傍解が悪化する場合も温度に応じて確率的に受理する局所探索です。探索の初期は悪化遷移も受理しやすくして局所最適から抜け出し、終盤では温度を下げて良い解へ収束させます。\n\n【問題】\n大きいスコアほど良い最大化問題を考えます。現在のスコア currentScore、近傍解のスコア candidateScore、温度 temperature が与えられたとき、候補を受理するか判定する関数を実装してください。改善なら必ず受理し、悪化なら exp((candidateScore - currentScore) / temperature) の確率で受理します。',
@@ -54,7 +54,7 @@
       '最大化問題では delta = candidateScore - currentScore と置く。改善なら delta >= 0 なので必ず受理する',
       '悪化の大きさが小さいほど、exp(delta / temperature) は大きくなり受理されやすい',
       '同じ悪化でも温度が高いほど受理確率は高く、温度が低い終盤では悪化をほとんど受理しない',
-      '実際の AHC では制限時間に合わせて温度を連続的に下げ、近傍生成・差分計算と組み合わせる',
+      '実際の探索では制限時間に合わせて温度を連続的に下げ、近傍生成・差分計算と組み合わせる',
     ],
     complexity: { time: 'O(1)', space: 'O(1)' },
     tip: 'スコアが小さいほど良い最小化問題では、delta の符号を逆にするか、exp((currentScore - candidateScore) / temperature) を使います。',
