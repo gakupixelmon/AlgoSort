@@ -38,6 +38,11 @@ const GameEngine = (() => {
   let copyAnswerBtn = null;
   let checkBtn = null;
   let giveUpBtn = null;
+  let bulkActions = null;
+  let selectionCount = null;
+  let moveSelectedToAnswerBtn = null;
+  let moveSelectedToChoicesBtn = null;
+  let clearBlockSelectionBtn = null;
 
   // 開示済みヒントの履歴と現在表示中のインデックス
   let viewingHintIndex = -1;  // -1 = 未表示, 0 = 1枚目 ...
@@ -56,7 +61,9 @@ const GameEngine = (() => {
 
   // PC DnD状態
   let draggedEl = null;
+  let draggedEls = [];
   let lastDragEndTime = 0;
+  let draggingEls = [];
 
   // スワイプページ切り替え状態
   let currentPage = 0;          // 0 = 問題文ページ, 1 = コードページ
@@ -82,6 +89,11 @@ const GameEngine = (() => {
     copyAnswerBtn = elements.copyAnswerBtn;
     checkBtn = elements.checkBtn;
     giveUpBtn = elements.giveUpBtn;
+    bulkActions = document.getElementById('bulk-actions');
+    selectionCount = document.getElementById('selection-count');
+    moveSelectedToAnswerBtn = document.getElementById('move-selected-to-answer');
+    moveSelectedToChoicesBtn = document.getElementById('move-selected-to-choices');
+    clearBlockSelectionBtn = document.getElementById('clear-block-selection');
 
     // ヒントナビゲーション要素
     hintNav     = document.getElementById('hint-nav');
@@ -91,6 +103,7 @@ const GameEngine = (() => {
 
     answerZone.innerHTML = '';
     choicesZone.innerHTML = '';
+    updateSelectionUI();
     if (hintText) { hintText.innerHTML = ''; hintText.classList.remove('has-hint'); }
     if (hintNav) hintNav.hidden = true;
     viewingHintIndex = -1;
@@ -113,6 +126,7 @@ const GameEngine = (() => {
     // ③ ゾーンのDnDイベント設定
     setupZoneEvents(answerZone);
     setupZoneEvents(choicesZone);
+    setupBulkActions();
 
     // ⑤ ヒントボタン（重複登録防止）
     if (hintBtn) {
@@ -363,6 +377,27 @@ const GameEngine = (() => {
     tapIcon.className = 'block-tap-icon';
     tapIcon.textContent = '⇅';
 
+    const selectToggle = document.createElement('button');
+    selectToggle.type = 'button';
+    selectToggle.className = 'block-select-toggle';
+    selectToggle.textContent = '✓';
+    selectToggle.title = 'このブロックを選択';
+    selectToggle.setAttribute('aria-label', 'このブロックを選択');
+    selectToggle.setAttribute('aria-pressed', 'false');
+    selectToggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleBlockSelection(el);
+    });
+    selectToggle.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
+    selectToggle.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      lastTapTime = Date.now();
+      toggleBlockSelection(el);
+    }, { passive: false });
+
+    el.appendChild(selectToggle);
     el.appendChild(codeSpan);
     el.appendChild(tapIcon);
 
@@ -373,7 +408,8 @@ const GameEngine = (() => {
     // === PC: クリック（タップ移動） ===
     // dragEnd後 150ms 以内のclickはドラッグ起因なのでスキップ
     // タッチタップ後 200ms 以内のclickはtouchendで既に処理済みなのでスキップ
-    el.addEventListener('click', () => {
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('.block-select-toggle')) return;
       if (Date.now() - lastDragEndTime < 150) return;
       if (Date.now() - lastTapTime < 200) return;
       handleBlockTap(el);
@@ -405,6 +441,70 @@ const GameEngine = (() => {
     triggerAutoCheck();
   }
 
+  function getSelectedBlocks() {
+    if (!answerZone || !choicesZone) return [];
+    return [...answerZone.querySelectorAll('.code-block.is-selected:not(.pinned)'), ...choicesZone.querySelectorAll('.code-block.is-selected:not(.pinned)')];
+  }
+
+  function toggleBlockSelection(el) {
+    el.classList.toggle('is-selected');
+    const toggle = el.querySelector('.block-select-toggle');
+    const selected = el.classList.contains('is-selected');
+    if (toggle) {
+      toggle.setAttribute('aria-pressed', String(selected));
+      toggle.title = selected ? 'このブロックの選択を解除' : 'このブロックを選択';
+      toggle.setAttribute('aria-label', toggle.title);
+    }
+    updateSelectionUI();
+  }
+
+  function clearBlockSelection() {
+    getSelectedBlocks().forEach((el) => {
+      el.classList.remove('is-selected');
+      const toggle = el.querySelector('.block-select-toggle');
+      if (toggle) {
+        toggle.setAttribute('aria-pressed', 'false');
+        toggle.title = 'このブロックを選択';
+        toggle.setAttribute('aria-label', toggle.title);
+      }
+    });
+    updateSelectionUI();
+  }
+
+  function updateSelectionUI() {
+    const count = getSelectedBlocks().length;
+    if (bulkActions) bulkActions.hidden = count === 0;
+    if (selectionCount) selectionCount.textContent = `${count}件選択中`;
+  }
+
+  function moveBlocks(blocks, targetZone, beforeEl = null) {
+    const selected = new Set(blocks);
+    const ordered = [...answerZone.querySelectorAll('.code-block:not(.pinned)'), ...choicesZone.querySelectorAll('.code-block:not(.pinned)')]
+      .filter((el) => selected.has(el));
+    ordered.forEach((el) => targetZone.insertBefore(el, beforeEl));
+  }
+
+  function moveSelectedBlocks(targetZone) {
+    const blocks = getSelectedBlocks();
+    if (blocks.length === 0) return;
+    moveBlocks(blocks.filter((el) => el.parentElement !== targetZone), targetZone);
+    clearBlockSelection();
+    triggerAutoCheck();
+  }
+
+  function setupBulkActions() {
+    const bind = (button, handler) => {
+      if (!button) return;
+      const replacement = button.cloneNode(true);
+      button.parentNode.replaceChild(replacement, button);
+      replacement.addEventListener('click', handler);
+      return replacement;
+    };
+    moveSelectedToAnswerBtn = bind(moveSelectedToAnswerBtn, () => moveSelectedBlocks(answerZone));
+    moveSelectedToChoicesBtn = bind(moveSelectedToChoicesBtn, () => moveSelectedBlocks(choicesZone));
+    clearBlockSelectionBtn = bind(clearBlockSelectionBtn, clearBlockSelection);
+  }
+
   function setupZoneEvents(zone) {
     zone.addEventListener('dragover', onDragOver);
     zone.addEventListener('dragleave', onDragLeave);
@@ -414,16 +514,18 @@ const GameEngine = (() => {
   // ======= PC Drag & Drop =======
   function onDragStart(e) {
     draggedEl = e.currentTarget;
-    draggedEl.classList.add('dragging');
+    draggedEls = draggedEl.classList.contains('is-selected') ? getSelectedBlocks() : [draggedEl];
+    draggedEls.forEach((el) => el.classList.add('dragging'));
     e.dataTransfer.effectAllowed = 'move';
   }
 
   function onDragEnd(e) {
     lastDragEndTime = Date.now();
-    if (draggedEl) draggedEl.classList.remove('dragging');
+    draggedEls.forEach((el) => el.classList.remove('dragging'));
     document.querySelectorAll('.drop-indicator').forEach((el) => el.remove());
     document.querySelectorAll('.drag-over').forEach((el) => el.classList.remove('drag-over'));
     draggedEl = null;
+    draggedEls = [];
   }
 
   function onDragOver(e) {
@@ -457,13 +559,15 @@ const GameEngine = (() => {
 
     const afterEl = getDragAfterElement(zone, e.clientY);
     if (afterEl == null) {
-      zone.appendChild(draggedEl);
+      moveBlocks(draggedEls, zone);
     } else {
-      zone.insertBefore(draggedEl, afterEl);
+      moveBlocks(draggedEls, zone, afterEl);
     }
 
-    draggedEl.classList.remove('dragging');
+    draggedEls.forEach((el) => el.classList.remove('dragging'));
+    clearBlockSelection();
     draggedEl = null;
+    draggedEls = [];
     triggerAutoCheck();
   }
 
@@ -492,6 +596,7 @@ const GameEngine = (() => {
   // ======= スマホ Touch Drag & Drop (タップ検出付き) =======
   function onTouchStart(e) {
     if (e.touches.length !== 1) return;
+    if (e.target.closest('.block-select-toggle')) return;
     // touchstart 時点では preventDefault しない（スクロールを許可）
 
     const touch = e.touches[0];
@@ -514,6 +619,7 @@ const GameEngine = (() => {
 
   function startDrag(targetEl, touch) {
     draggingEl = targetEl;
+    draggingEls = draggingEl.classList.contains('is-selected') ? getSelectedBlocks() : [draggingEl];
     const rect = draggingEl.getBoundingClientRect();
     dragOffsetX = touch.clientX - rect.left;
     dragOffsetY = touch.clientY - rect.top;
@@ -527,7 +633,7 @@ const GameEngine = (() => {
     dragClone.style.pointerEvents = 'none'; // ヒットテスト干渉を防止
     document.body.appendChild(dragClone);
 
-    draggingEl.classList.add('dragging');
+    draggingEls.forEach((el) => el.classList.add('dragging'));
   }
 
   function onTouchMove(e) {
@@ -566,7 +672,7 @@ const GameEngine = (() => {
     document.removeEventListener('touchmove', onTouchMove);
     document.removeEventListener('touchend', onTouchEnd);
     document.removeEventListener('touchcancel', onTouchCancel);
-    if (draggingEl) draggingEl.classList.remove('dragging');
+    draggingEls.forEach((el) => el.classList.remove('dragging'));
     if (dragClone) {
       try { document.body.removeChild(dragClone); } catch (_) {}
       dragClone = null;
@@ -576,6 +682,7 @@ const GameEngine = (() => {
       try { document.body.removeChild(el); } catch (_) {}
     });
     draggingEl = null;
+    draggingEls = [];
   }
 
   // touchcancel: システムジェスチャー等でタッチが中断された場合の後始末
@@ -603,7 +710,7 @@ const GameEngine = (() => {
 
     // ドラッグモードが開始されていない場合はタップ判定
     if (!isDragMode) {
-      if (draggingEl) draggingEl.classList.remove('dragging');
+      draggingEls.forEach((el) => el.classList.remove('dragging'));
       // 短タップ（動きが小さく短時間）ならタップ移動
       if (totalMoved < 10 && elapsed < 400) {
         // touchstart で記録した要素を使ってタップ判定
@@ -617,6 +724,7 @@ const GameEngine = (() => {
         }
       }
       draggingEl = null;
+      draggingEls = [];
       isDragMode = false;
       return;
     }
@@ -626,9 +734,6 @@ const GameEngine = (() => {
       isDragMode = false;
       return;
     }
-
-    // 元のゾーンを記録（targetZone が null の場合に戻す先として使用）
-    const originalZone = draggingEl.parentElement;
 
     // ① クローンを先に削除してから elementFromPoint を呼ぶ
     //   （クローンが残っているとヒットテストに干渉してドロップ先を誤検出する）
@@ -641,7 +746,7 @@ const GameEngine = (() => {
       try { document.body.removeChild(el); } catch (_) {}
     });
 
-    draggingEl.classList.remove('dragging');
+    draggingEls.forEach((el) => el.classList.remove('dragging'));
     document.querySelectorAll('.drop-zone').forEach((z) => z.classList.remove('drag-over'));
 
     // ② クローン削除後に指の位置のドロップ先を特定
@@ -652,16 +757,15 @@ const GameEngine = (() => {
       // ③ ドロップ先ゾーンに配置
       const afterEl = getTouchAfterElement(targetZone, touch.clientY);
       if (afterEl == null) {
-        targetZone.appendChild(draggingEl);
+        moveBlocks(draggingEls, targetZone);
       } else {
-        targetZone.insertBefore(draggingEl, afterEl);
+        moveBlocks(draggingEls, targetZone, afterEl);
       }
-    } else if (originalZone) {
-      // ④ ゾーン外にドロップした場合は元のゾーンに戻す（dragging クラスが外れた状態で残らないようにする）
-      originalZone.appendChild(draggingEl);
     }
 
+    if (targetZone) clearBlockSelection();
     draggingEl = null;
+    draggingEls = [];
     isDragMode = false;
     triggerAutoCheck();
   }
