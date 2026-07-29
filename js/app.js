@@ -276,7 +276,7 @@ const App = (() => {
 
     // ヘッダー情報
     document.getElementById('game-title').textContent = problem.title;
-    document.getElementById('game-description').textContent = problem.description;
+    MathRenderer.render(document.getElementById('game-description'), problem.description);
     document.getElementById('game-difficulty').textContent =
       '★'.repeat(problem.difficulty) + '☆'.repeat(5 - problem.difficulty);
 
@@ -293,15 +293,16 @@ const App = (() => {
           row.innerHTML = `
             <span class="input-format-name">${escapeHtml(param.name)}</span>
             <span class="input-format-type">${escapeHtml(param.type)}</span>
-            <span class="input-format-desc">${escapeHtml(param.desc)}</span>
+            <span class="input-format-desc"></span>
           `;
+          MathRenderer.render(row.querySelector('.input-format-desc'), param.desc);
           inputFormatContent.appendChild(row);
         });
         // 補足ノート（constraints等）
         if (problem.inputFormat.note) {
           const note = document.createElement('div');
           note.className = 'input-format-note';
-          note.textContent = problem.inputFormat.note;
+          MathRenderer.render(note, problem.inputFormat.note);
           inputFormatContent.appendChild(note);
         }
 
@@ -342,7 +343,7 @@ const App = (() => {
               exContainer.appendChild(exExpLabel);
               const exExp = document.createElement('div');
               exExp.className = 'example-explanation';
-              exExp.textContent = ex.explanation;
+              MathRenderer.render(exExp, ex.explanation);
               exContainer.appendChild(exExp);
             }
 

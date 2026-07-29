@@ -1087,11 +1087,11 @@ const GameEngine = (() => {
            </div>`
         : '';
       const tipHtml = exp.tip
-        ? `<div class="explanation-tip"><span class="tip-icon">💡</span><span>${escapeHtml(exp.tip)}</span></div>`
+        ? `<div class="explanation-tip"><span class="tip-icon">💡</span><div>${escapeHtml(exp.tip)}</div></div>`
         : '';
       explanationHtml = `
         <div class="solution-explanation-section" style="border:none; height:100%; overflow-y:auto; padding-bottom:32px;">
-          <p class="explanation-summary">${escapeHtml(exp.summary)}</p>
+          <div class="explanation-summary">${escapeHtml(exp.summary)}</div>
           <ul class="explanation-points">${pointsHtml}</ul>
           ${complexityHtml}
           ${tipHtml}
@@ -1155,6 +1155,8 @@ const GameEngine = (() => {
     `;
 
     document.body.appendChild(modal);
+    const explanationSection = modal.querySelector('.solution-explanation-section');
+    MathRenderer.typeset(explanationSection);
 
     // スライダーのタブとドットの連動ロジック
     const sliderEl = document.getElementById('solution-slider');
@@ -1287,7 +1289,7 @@ const GameEngine = (() => {
   function renderHint() {
     if (!hintText || viewingHintIndex < 0) return;
     const hint = currentProblem.hints[viewingHintIndex];
-    hintText.textContent = `💡 ヒント ${viewingHintIndex + 1}: ${hint}`;
+    MathRenderer.render(hintText, `💡 ヒント ${viewingHintIndex + 1}: ${hint}`);
     hintText.classList.add('has-hint', 'hint-appear');
     setTimeout(() => hintText.classList.remove('hint-appear'), 400);
   }

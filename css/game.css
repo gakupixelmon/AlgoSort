@@ -507,6 +507,16 @@
   white-space: pre-wrap; /* \n を改行として表示 */
 }
 
+.problem-statement-text mjx-container[display="true"],
+.input-format-content mjx-container[display="true"],
+.solution-explanation-section mjx-container[display="true"],
+#hint-text mjx-container[display="true"] {
+  max-width: 100%;
+  margin: 0.65em 0 !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 /* ===== 入力形式カード ===== */
 .input-format-card {
   background: linear-gradient(135deg, rgba(34,211,238,0.08), rgba(37,99,235,0.05));

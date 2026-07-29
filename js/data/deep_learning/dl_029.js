@@ -7,7 +7,7 @@
   categoryLabel: '深層学習',
   difficulty: 3,
   language: 'python',
-  description: '【GELU とは】\nGELU（Gaussian Error Linear Unit）は、入力値を滑らかに通過・抑制する活性化関数です。ReLU のように負の値を一律に0にせず、小さい負の値をなめらかに扱えるため、Transformer 系のモデルで広く使われています。\n\nNumPy を使って、GELU の tanh 近似を実装してください。近似式は GELU(x) ≈ 0.5x(1 + tanh(sqrt(2 / pi)(x + 0.044715x^3))) です。',
+  description: '【GELU とは】\nGELU（Gaussian Error Linear Unit）は、入力値を滑らかに通過・抑制する活性化関数です。ReLU のように負の値を一律に0にせず、小さい負の値をなめらかに扱えるため、Transformer 系のモデルで広く使われています。\n\nNumPy を使って、GELU の tanh 近似を実装してください。近似式は $\\operatorname{GELU}(x) \\approx 0.5x\\left(1 + \\tanh\\left(\\sqrt{2 / \\pi}\\left(x + 0.044715x^3\\right)\\right)\\right)$ です。',
   inputFormat: {
     params: [
       { name: 'x', type: 'np.ndarray', desc: '任意 shape の入力テンソル' },
