@@ -96,6 +96,7 @@
   flex-direction: column;
   gap: var(--space-xs);
   text-align: right;
+  min-width: 120px;
 }
 
 .streak-stat {
@@ -106,6 +107,10 @@
 .streak-stat span {
   color: var(--text-primary);
   font-weight: 600;
+}
+
+.streak-stat:nth-child(n + 3) {
+  color: #fbbf24;
 }
 
 .streak-today-status {

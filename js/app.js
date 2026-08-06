@@ -60,12 +60,22 @@ const App = (() => {
     const streakEl = document.getElementById('streak-count');
     const maxStreakEl = document.getElementById('max-streak');
     const totalEl = document.getElementById('total-solved');
+    const ticketCountEl = document.getElementById('ticket-count');
+    const ticketProgressEl = document.getElementById('ticket-progress');
+    const ticketGoalEl = document.getElementById('ticket-goal');
+    const catchupProgressEl = document.getElementById('catchup-progress');
+    const catchupGoalEl = document.getElementById('catchup-goal');
     const todayStatusEl = document.getElementById('today-clear-status');
     const hasPlayedToday = Storage.hasPlayedToday();
 
     if (streakEl) streakEl.textContent = currentStreak;
     if (maxStreakEl) maxStreakEl.textContent = streakData.max;
     if (totalEl) totalEl.textContent = Storage.getTotalSolved();
+    if (ticketCountEl) ticketCountEl.textContent = streakData.tickets;
+    if (ticketProgressEl) ticketProgressEl.textContent = streakData.ticketProgress;
+    if (ticketGoalEl) ticketGoalEl.textContent = Storage.TICKET_GOAL;
+    if (catchupProgressEl) catchupProgressEl.textContent = streakData.catchupProgress;
+    if (catchupGoalEl) catchupGoalEl.textContent = Storage.CATCHUP_GOAL;
     if (todayStatusEl) {
       todayStatusEl.textContent = hasPlayedToday ? '今日 完了' : '今日 未完了';
       todayStatusEl.classList.toggle('done', hasPlayedToday);
@@ -74,13 +84,6 @@ const App = (() => {
 
     const fireEl = document.getElementById('streak-fire');
     if (fireEl) fireEl.style.display = currentStreak > 0 ? 'inline' : 'none';
-
-    // チケット表示
-    const ticketArea = document.getElementById('streak-ticket-area');
-    const ticketCount = document.getElementById('ticket-count');
-    if (ticketArea && ticketCount) {
-      ticketArea.style.display = 'none';
-    }
 
     const randomBtn = document.getElementById('btn-random');
     const categoryBtn = document.getElementById('btn-category');
