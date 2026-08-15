@@ -8,6 +8,36 @@ const App = (() => {
   const screens = {};
   let feedbackTimer = null;
 
+  const DEEP_LEARNING_SECTIONS = [
+    {
+      label: '基礎・学習',
+      problemIds: [
+        'dl_001', 'dl_002', 'dl_003', 'dl_004', 'dl_005', 'dl_006', 'dl_007', 'dl_008',
+        'dl_010', 'dl_012', 'dl_013', 'dl_024', 'dl_025', 'dl_026', 'dl_028', 'dl_029',
+        'dl_040',
+      ],
+    },
+    {
+      label: 'CNN・RNN',
+      problemIds: ['dl_009', 'dl_014', 'dl_015', 'dl_016', 'dl_017', 'dl_018'],
+    },
+    {
+      label: 'Transformer・LLM',
+      problemIds: [
+        'dl_011', 'dl_019', 'dl_020', 'dl_021', 'dl_027', 'dl_030', 'dl_031', 'dl_032',
+        'dl_034', 'dl_035', 'dl_036', 'dl_037', 'dl_038',
+      ],
+    },
+    {
+      label: '生成・表現学習',
+      problemIds: ['dl_022', 'dl_023', 'dl_039'],
+    },
+    {
+      label: '強化学習',
+      problemIds: ['dl_033'],
+    },
+  ];
+
   function init() {
     document.querySelectorAll('.screen').forEach((el) => {
       screens[el.id] = el;
@@ -213,7 +243,7 @@ const App = (() => {
     const titleEl = document.getElementById('stages-title');
     if (titleEl && cat) titleEl.textContent = cat.label;
 
-    problems.forEach((problem) => {
+    const renderStageItem = (problem) => {
       const isCleared = Storage.isClear(problem.id);
       const stars = '★'.repeat(problem.difficulty) + '☆'.repeat(5 - problem.difficulty);
       const langBadge = problem.language === 'cpp' ? 'C++' : problem.language.toUpperCase();
@@ -237,7 +267,37 @@ const App = (() => {
         navigateTo('game', { problemId: problem.id, fromRandom: false });
       });
       list.appendChild(item);
-    });
+    };
+
+    if (categoryId === 'deep_learning') {
+      const problemsById = new Map(problems.map((problem) => [problem.id, problem]));
+
+      DEEP_LEARNING_SECTIONS.forEach((section) => {
+        const sectionProblems = section.problemIds
+          .map((problemId) => problemsById.get(problemId))
+          .filter(Boolean);
+        if (sectionProblems.length === 0) return;
+
+        const heading = document.createElement('h3');
+        heading.className = 'stage-section-heading';
+        heading.textContent = section.label;
+        list.appendChild(heading);
+
+        sectionProblems.forEach(renderStageItem);
+        sectionProblems.forEach((problem) => problemsById.delete(problem.id));
+      });
+
+      // 新規問題が未分類でも、一覧から消えないよう末尾に表示する。
+      if (problemsById.size > 0) {
+        const heading = document.createElement('h3');
+        heading.className = 'stage-section-heading';
+        heading.textContent = 'その他';
+        list.appendChild(heading);
+        problemsById.forEach(renderStageItem);
+      }
+    } else {
+      problems.forEach(renderStageItem);
+    }
 
     // コミュニティ統計を非同期で取得・表示
     if (window.FIREBASE_ENABLED && window.CommunityStats) {

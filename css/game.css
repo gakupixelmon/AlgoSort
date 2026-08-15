@@ -331,6 +331,17 @@
   margin-top: var(--space-md);
 }
 
+.stage-section-heading {
+  margin: var(--space-lg) 0 0;
+  color: var(--accent-cyan);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.stage-section-heading:first-child {
+  margin-top: 0;
+}
+
 .stage-item {
   background: var(--bg-card);
   border: 1px solid var(--border);
