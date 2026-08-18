@@ -6,7 +6,8 @@
  *   js/data/graph/     - グラフ理論
  *   js/data/dijkstra/  - ダイクストラ法
  *   js/data/dp/        - 動的計画法
- *   js/data/deep_learning/ - 深層学習
+ *   js/data/applied/deep_learning/ - 深層学習
+ *   js/data/applied/state_estimation/ - 状態推定・制御
  *   js/data/registry.js    - PROBLEMS_DB・CATEGORIES・DataManager
  *
  * 新しい問題を追加する場合:

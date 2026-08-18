@@ -8,9 +8,9 @@ const App = (() => {
   const screens = {};
   let feedbackTimer = null;
 
-  const DEEP_LEARNING_SECTIONS = [
+  const APPLIED_SECTIONS = [
     {
-      label: '基礎・学習',
+      label: '深層学習・基礎と学習',
       problemIds: [
         'dl_001', 'dl_002', 'dl_003', 'dl_004', 'dl_005', 'dl_006', 'dl_007', 'dl_008',
         'dl_010', 'dl_012', 'dl_013', 'dl_024', 'dl_025', 'dl_026', 'dl_028', 'dl_029',
@@ -18,23 +18,27 @@ const App = (() => {
       ],
     },
     {
-      label: 'CNN・RNN',
+      label: '深層学習・CNNとRNN',
       problemIds: ['dl_009', 'dl_014', 'dl_015', 'dl_016', 'dl_017', 'dl_018'],
     },
     {
-      label: 'Transformer・LLM',
+      label: '深層学習・TransformerとLLM',
       problemIds: [
         'dl_011', 'dl_019', 'dl_020', 'dl_021', 'dl_027', 'dl_030', 'dl_031', 'dl_032',
         'dl_034', 'dl_035', 'dl_036', 'dl_037', 'dl_038',
       ],
     },
     {
-      label: '生成・表現学習',
+      label: '深層学習・生成と表現学習',
       problemIds: ['dl_022', 'dl_023', 'dl_039'],
     },
     {
-      label: '強化学習',
+      label: '深層学習・強化学習',
       problemIds: ['dl_033'],
+    },
+    {
+      label: '状態推定・制御',
+      problemIds: ['kalman_001'],
     },
   ];
 
@@ -269,10 +273,10 @@ const App = (() => {
       list.appendChild(item);
     };
 
-    if (categoryId === 'deep_learning') {
+    if (categoryId === 'applied') {
       const problemsById = new Map(problems.map((problem) => [problem.id, problem]));
 
-      DEEP_LEARNING_SECTIONS.forEach((section) => {
+      APPLIED_SECTIONS.forEach((section) => {
         const sectionProblems = section.problemIds
           .map((problemId) => problemsById.get(problemId))
           .filter(Boolean);

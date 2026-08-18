@@ -63,9 +63,9 @@ const CATEGORIES = window.CATEGORIES = [
     randomEligible: true,
   },
   {
-    id: 'deep_learning',
-    label: '深層学習',
-    icon: '🧠',
+    id: 'applied',
+    label: '応用',
+    icon: '🔬',
     color: '#f472b6',
     available: true,
     randomEligible: false,   // ← ランダムモードには出題しない
