@@ -1,0 +1,70 @@
+// graph_013: 多始点BFS (C++) ★3
+// すべての始点を距離0として同じキューへ入れ、最寄りの始点からの距離を求める
+(window.PROBLEMS_REGISTRY = window.PROBLEMS_REGISTRY || []).push({
+  id: 'graph_013',
+  title: '多始点幅優先探索（Multi-Source BFS）',
+  category: 'graph',
+  categoryLabel: 'グラフ理論',
+  difficulty: 3,
+  language: 'cpp',
+  description: '【多始点BFSとは】\n通常のBFSは1つの始点から距離を広げます。多始点BFSでは、複数の始点をすべて距離0として最初から同じキューに入れます。すると各頂点は、どの始点から到達してもよいときの最短距離、すなわち最寄りの始点までの距離で初めて訪問されます。\n\n無向グラフ `graph`、頂点数 `n`、互いに異なる始点の配列 `sources` が与えられます。各頂点について、いずれかの始点からの最短距離を返してください。どの始点からも到達できない頂点の距離は `-1` とします。\n\n避難所までの最短距離、複数の発火点からの火の広がり、グリッド上の最寄りの施設探索などにそのまま使える手法です。',
+  inputFormat: {
+    params: [
+      { name: 'n', type: 'int', desc: '頂点数（0-indexed）' },
+      { name: 'graph', type: 'const vector<vector<int>>&', desc: '無向グラフの隣接リスト' },
+      { name: 'sources', type: 'const vector<int>&', desc: '互いに異なる始点の配列' },
+    ],
+    note: '戻り値: vector<int>（各頂点の最寄り始点からの距離）\n制約: 1 ≤ n ≤ 2×10^5、0 ≤ |E| ≤ 2×10^5、sources は空でない',
+    examples: [
+      {
+        input: 'n = 6, graph = [[1], [0,2], [1,3], [2,4], [3], []], sources = [0, 4]',
+        output: '[0, 1, 2, 1, 0, -1]',
+        explanation: '頂点0と4を同時に距離0から開始します。頂点2は0から距離2、4からも距離2です。頂点5は孤立しているため -1 です。',
+      },
+    ],
+  },
+  pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;'],
+  blocks: [
+    { id: 0, code: 'vector<int> multiSourceBFS(int n, const vector<vector<int>>& graph, const vector<int>& sources) {' },
+    { id: 1, code: '    vector<int> dist(n, -1);' },
+    { id: 2, code: '    queue<int> q;' },
+    { id: 3, code: '    for (int s : sources) {' },
+    { id: 4, code: '        dist[s] = 0;' },
+    { id: 5, code: '        q.push(s);' },
+    { id: 6, code: '    }' },
+    { id: 7, code: '    while (!q.empty()) {' },
+    { id: 8, code: '        int v = q.front();' },
+    { id: 9, code: '        q.pop();' },
+    { id: 10, code: '        for (int to : graph[v]) {' },
+    { id: 11, code: '            if (dist[to] != -1)' },
+    { id: 12, code: '                continue;' },
+    { id: 13, code: '            dist[to] = dist[v] + 1;' },
+    { id: 14, code: '            q.push(to);' },
+    { id: 15, code: '        }' },
+    { id: 16, code: '    }' },
+    { id: 17, code: '    return dist;' },
+    { id: 18, code: '}' },
+  ],
+  partialOrder: [
+    [0, 1], [0, 2], [1, 3], [2, 3], [3, 4], [3, 5], [4, 6], [5, 6],
+    [6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 13],
+    [12, 14], [13, 15], [14, 15], [15, 16], [16, 17], [17, 18],
+  ],
+  hints: [
+    '距離配列を -1 で初期化し、各始点だけを距離0にします。',
+    '始点を1つずつBFSするのではなく、すべての始点を最初から同じキューに入れます。',
+    '未訪問の隣接頂点 `to` を見つけたら、`dist[to] = dist[v] + 1` としてキューへ追加します。',
+    'すでに dist[to] が -1 以外なら、より短い距離で訪問済みなので再追加してはいけません。',
+  ],
+  explanation: {
+    summary: '多始点BFSは、仮想的なスーパースタートからすべての始点へ長さ0の辺を張ったBFSと同じです。キューに先に入った頂点ほど始点から近いため、最初に決まる距離が最短距離になります。',
+    points: [
+      '全始点を距離0でキューに入れる以外は、通常のBFSと同じ処理でよい',
+      '頂点が初めてキューへ入る時点で、その頂点への距離は最寄り始点からの最短距離に確定する',
+      '孤立頂点や別連結成分の頂点は訪問されず、初期値 -1 のまま残る',
+      'グリッド問題では、各マスを頂点、上下左右の移動を辺と考えれば同じ実装方針を使える',
+    ],
+    complexity: { time: 'O(V + E)', space: 'O(V)' },
+    tip: '「最も近い〇〇までの距離を全頂点・全マスで求める」問題を見たら、多始点BFSを候補にしてください。始点ごとにBFSを繰り返すより大幅に高速です。',
+  },
+});
