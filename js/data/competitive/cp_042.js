@@ -1,0 +1,73 @@
+// cp_042: 全順序対の内分点が作る凸包 ★4 (C++)
+// 重み付き平均と対角点を使い、O(N^2) 個の点を元の凸包へ帰着する
+(window.PROBLEMS_REGISTRY = window.PROBLEMS_REGISTRY || []).push({
+  id: 'cp_042',
+  title: '全順序対の内分点が作る凸包',
+  category: 'competitive',
+  categoryLabel: '競技プログラミング',
+  difficulty: 4,
+  language: 'cpp',
+  description: '【問題】\n座標平面上に $N$ 個の点 $P_0,P_1,\\ldots,P_{N-1}$ があります。正整数 $p,q$ が与えられ、全ての順序対 $(i,j)$（$i=j$ も含む）に対して\n$$R_{i,j}=\\frac{qP_i+pP_j}{p+q}$$\nを考えます。全ての $R_{i,j}$ の凸包の面積の2倍を返してください。\n\n$N^2$ 個の点を実際に列挙してはいけません。\n\n【観察】\n$R_{i,j}$ は $P_i,P_j$ の正の係数による重み付き平均なので、必ず元の点集合の凸包の中にあります。一方、$i=j$ なら $R_{i,i}=P_i$ です。したがって内分点たちの凸包は、元の点たちの凸包と完全に一致します。',
+  inputFormat: {
+    params: [
+      { name: 'points', type: 'const vector<Point>&', desc: '点 (x, y) の列' },
+      { name: 'p, q', type: 'long long', desc: '正の内分比の重み' },
+    ],
+    note: '戻り値: long long（内分点たちの凸包の面積の2倍）\n制約: 2 ≤ N ≤ 2×10^5、1 ≤ p,q ≤ 10^9、|x_i|,|y_i| ≤ 10^7',
+    examples: [
+      {
+        input: 'points = {{0, 0}, {4, 0}, {0, 3}}, p = 2, q = 5',
+        output: '12',
+        explanation: '元の3点の凸包は底辺4、高さ3の三角形です。面積は6なので、面積の2倍は12です。内分点は全てこの三角形内にあり、同一点の組から3頂点も得られます。',
+      },
+    ],
+  },
+  pinnedCode: ['#include <bits/stdc++.h>', 'using namespace std;', 'struct Point { long long x, y; };'],
+  blocks: [
+    { id: 0, code: 'long long twiceBlendedHullArea(const vector<Point>& points, long long p, long long q) {' },
+    { id: 1, code: '    (void)p; (void)q;' },
+    { id: 2, code: '    vector<Point> sorted = points;' },
+    { id: 3, code: '    sort(sorted.begin(), sorted.end(), [](const Point& a, const Point& b) { return a.x != b.x ? a.x < b.x : a.y < b.y; });' },
+    { id: 4, code: '    sorted.erase(unique(sorted.begin(), sorted.end(), [](const Point& a, const Point& b) { return a.x == b.x && a.y == b.y; }), sorted.end());' },
+    { id: 5, code: '    auto cross = [](const Point& a, const Point& b, const Point& c) { return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x); };' },
+    { id: 6, code: '    vector<Point> hull;' },
+    { id: 7, code: '    for (const Point& point : sorted) {' },
+    { id: 8, code: '        while (hull.size() >= 2 && cross(hull[hull.size() - 2], hull.back(), point) <= 0) hull.pop_back();' },
+    { id: 9, code: '        hull.push_back(point);' },
+    { id: 10, code: '    }' },
+    { id: 11, code: '    int lowerSize = (int)hull.size();' },
+    { id: 12, code: '    for (int i = (int)sorted.size() - 2; i >= 0; i--) {' },
+    { id: 13, code: '        while ((int)hull.size() > lowerSize && cross(hull[hull.size() - 2], hull.back(), sorted[i]) <= 0) hull.pop_back();' },
+    { id: 14, code: '        hull.push_back(sorted[i]);' },
+    { id: 15, code: '    }' },
+    { id: 16, code: '    if (hull.size() > 1) hull.pop_back();' },
+    { id: 17, code: '    long long twiceArea = 0;' },
+    { id: 18, code: '    for (int i = 0; i < (int)hull.size(); i++) {' },
+    { id: 19, code: '        const Point& a = hull[i]; const Point& b = hull[(i + 1) % hull.size()];' },
+    { id: 20, code: '        twiceArea += a.x * b.y - a.y * b.x;' },
+    { id: 21, code: '    }' },
+    { id: 22, code: '    return llabs(twiceArea);' },
+    { id: 23, code: '}' },
+  ],
+  partialOrder: [
+    [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11],
+    [11, 12], [12, 13], [13, 14], [14, 15], [15, 16], [16, 17], [17, 18], [18, 19], [19, 20], [20, 21], [21, 22], [22, 23],
+  ],
+  hints: [
+    'R_i,j は P_i と P_j の係数 q/(p+q), p/(p+q) による凸結合です。まず全ての R_i,j がどこにあるか考えましょう。',
+    'i=j を選べることが重要です。このとき R_i,i はちょうど P_i になります。',
+    '内分点の凸包と元の点の凸包が一致すると分かれば、通常の monotone chain で元の点の凸包を求めるだけです。',
+    '面積は靴紐公式で計算できます。整数座標では面積の2倍が常に整数です。',
+  ],
+  explanation: {
+    summary: '内分点を大量生成する必要はありません。全内分点は元の凸包に含まれ、対角の内分点が元の全頂点を含むため、2つの凸包は等しくなります。',
+    points: [
+      'R_i,j=(q/(p+q))P_i+(p/(p+q))P_j は凸結合なので conv(P) の外へ出ない',
+      'i=j で R_i,i=P_i となるため、全ての元の点は内分点集合に含まれる',
+      'よって conv({R_i,j})⊆conv(P) と conv(P)⊆conv({R_i,j}) の両方が成り立つ',
+      '面積計算は元の点の凸包に monotone chain と靴紐公式を適用すればよい',
+    ],
+    complexity: { time: 'O(N log N)', space: 'O(N)' },
+    tip: '大量の「点の重み付き平均」が現れたときは、凸結合であることから元の凸包の内部にあると分かります。対角項や極値点を含むかも併せて確認すると、凸包全体が一致することがあります。',
+  },
+});
