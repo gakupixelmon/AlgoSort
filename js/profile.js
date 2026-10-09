@@ -8,6 +8,10 @@
 const ProfileManager = (() => {
   const MONTH_NAMES = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 
+  function difficultyStars(difficulty) {
+    return '★'.repeat(difficulty) + '☆'.repeat(Math.max(0, 5 - difficulty));
+  }
+
   // ─── URL の ?user=xxx を検知してプロフィールを表示 ────────────
   async function checkAndShow() {
     const params      = new URLSearchParams(window.location.search);
@@ -142,7 +146,7 @@ const ProfileManager = (() => {
                     <span class="profile-cleared-check">✓</span>
                     <div class="profile-cleared-body">
                       <span class="profile-cleared-title">${p.title}</span>
-                      <span class="profile-cleared-meta">${p.categoryLabel} ・ ${'★'.repeat(p.difficulty)}${'☆'.repeat(5 - p.difficulty)}</span>
+                      <span class="profile-cleared-meta">${p.categoryLabel} ・ ${difficultyStars(p.difficulty)}</span>
                     </div>
                   </div>`).join('')}
               </div>`

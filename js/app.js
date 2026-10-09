@@ -8,39 +8,9 @@ const App = (() => {
   const screens = {};
   let feedbackTimer = null;
 
-  const APPLIED_SECTIONS = [
-    {
-      label: '深層学習・基礎と学習',
-      problemIds: [
-        'dl_001', 'dl_002', 'dl_003', 'dl_004', 'dl_005', 'dl_006', 'dl_007', 'dl_008',
-        'dl_010', 'dl_012', 'dl_013', 'dl_024', 'dl_025', 'dl_026', 'dl_028', 'dl_029',
-        'dl_040',
-      ],
-    },
-    {
-      label: '深層学習・CNNとRNN',
-      problemIds: ['dl_009', 'dl_014', 'dl_015', 'dl_016', 'dl_017', 'dl_018'],
-    },
-    {
-      label: '深層学習・TransformerとLLM',
-      problemIds: [
-        'dl_011', 'dl_019', 'dl_020', 'dl_021', 'dl_027', 'dl_030', 'dl_031', 'dl_032',
-        'dl_034', 'dl_035', 'dl_036', 'dl_037', 'dl_038',
-      ],
-    },
-    {
-      label: '深層学習・生成と表現学習',
-      problemIds: ['dl_022', 'dl_023', 'dl_039'],
-    },
-    {
-      label: '深層学習・強化学習',
-      problemIds: ['dl_033'],
-    },
-    {
-      label: '状態推定・制御',
-      problemIds: ['kalman_001'],
-    },
-  ];
+  function difficultyStars(difficulty) {
+    return '★'.repeat(difficulty) + '☆'.repeat(Math.max(0, 5 - difficulty));
+  }
 
   function init() {
     document.querySelectorAll('.screen').forEach((el) => {
@@ -199,6 +169,7 @@ const App = (() => {
     categories.forEach((cat) => {
       const problems = DataManager.getProblemsByCategory(cat.id);
       const cleared = problems.filter((p) => Storage.isClear(p.id)).length;
+      const sectionCount = (cat.sections || []).length;
 
       const card = document.createElement('div');
       card.className = `category-card${cat.available ? '' : ' locked'}`;
@@ -216,7 +187,7 @@ const App = (() => {
             <span class="cat-label">${cat.label}</span>
             ${notRandomBadge}
           </div>
-          <div class="cat-progress">${cat.available ? `${cleared} / ${problems.length} クリア` : 'Coming Soon'}</div>
+          <div class="cat-progress">${cat.available ? `${cleared} / ${problems.length} クリア${sectionCount > 0 ? ` · ${sectionCount}テーマ` : ''}` : 'Coming Soon'}</div>
         </div>
         ${cat.available ? '' : '<div class="lock-icon">🔒</div>'}
       `;
@@ -249,7 +220,7 @@ const App = (() => {
 
     const renderStageItem = (problem) => {
       const isCleared = Storage.isClear(problem.id);
-      const stars = '★'.repeat(problem.difficulty) + '☆'.repeat(5 - problem.difficulty);
+      const stars = difficultyStars(problem.difficulty);
       const langBadge = problem.language === 'cpp' ? 'C++' : problem.language.toUpperCase();
 
       const item = document.createElement('div');
@@ -273,10 +244,11 @@ const App = (() => {
       list.appendChild(item);
     };
 
-    if (categoryId === 'applied') {
+    const sections = DataManager.getCategorySections(categoryId);
+    if (sections.length > 0) {
       const problemsById = new Map(problems.map((problem) => [problem.id, problem]));
 
-      APPLIED_SECTIONS.forEach((section) => {
+      sections.forEach((section) => {
         const sectionProblems = section.problemIds
           .map((problemId) => problemsById.get(problemId))
           .filter(Boolean);
@@ -344,8 +316,7 @@ const App = (() => {
     // ヘッダー情報
     document.getElementById('game-title').textContent = problem.title;
     MathRenderer.render(document.getElementById('game-description'), problem.description);
-    document.getElementById('game-difficulty').textContent =
-      '★'.repeat(problem.difficulty) + '☆'.repeat(5 - problem.difficulty);
+    document.getElementById('game-difficulty').textContent = difficultyStars(problem.difficulty);
 
     // 入力形式の表示
     const inputFormatCard = document.getElementById('input-format-card');
