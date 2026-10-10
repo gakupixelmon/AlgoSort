@@ -55,7 +55,7 @@ const CATEGORY_SECTIONS = {
     { label: '幾何・高速化', problemIds: ['cp_026', 'cp_027', 'cp_034', 'cp_042'] },
   ],
   heuristic: [
-    { label: '初期解の構築', problemIds: ['heuristic_001'] },
+    { label: '初期解の構築', problemIds: ['heuristic_001', 'heuristic_003'] },
     { label: '局所探索・確率的改善', problemIds: ['heuristic_002'] },
   ],
   applied: [
