@@ -44,7 +44,7 @@ const CATEGORY_SECTIONS = {
     { label: '最短路・木の構造', problemIds: ['graph_010', 'graph_011', 'graph_012'] },
   ],
   dijkstra: [
-    { label: '最短路アルゴリズム', problemIds: ['dijkstra_001', 'dijkstra_002'] },
+    { label: '最短路アルゴリズム', problemIds: ['dijkstra_001', 'dijkstra_002', 'dijkstra_003'] },
   ],
   competitive: [
     { label: '基本テクニック・数列', problemIds: ['cp_001', 'cp_002', 'cp_003', 'cp_010', 'cp_013', 'cp_014', 'cp_015', 'cp_016', 'cp_018', 'cp_029', 'cp_033', 'cp_036'] },
