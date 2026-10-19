@@ -35,7 +35,7 @@ const CATEGORY_SECTIONS = {
   ],
   dp: [
     { label: 'DP の基礎', problemIds: ['dp_001', 'dp_004', 'dp_006'] },
-    { label: '典型・発展 DP', problemIds: ['dp_002', 'dp_003', 'dp_005'] },
+    { label: '典型・発展 DP', problemIds: ['dp_002', 'dp_003', 'dp_005', 'dp_007'] },
   ],
   graph: [
     { label: '探索・彩色', problemIds: ['graph_001', 'graph_002', 'graph_003', 'graph_004', 'graph_013', 'graph_014'] },
