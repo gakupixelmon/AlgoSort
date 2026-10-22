@@ -34,14 +34,14 @@ const CATEGORY_SECTIONS = {
     { label: '探索・貪欲法', problemIds: ['basic_003', 'basic_004', 'basic_006', 'basic_007'] },
   ],
   dp: [
-    { label: 'DP の基礎', problemIds: ['dp_001', 'dp_004', 'dp_006'] },
+    { label: 'DP の基礎', problemIds: ['dp_001', 'dp_004', 'dp_006', 'dp_008'] },
     { label: '典型・発展 DP', problemIds: ['dp_002', 'dp_003', 'dp_005', 'dp_007'] },
   ],
   graph: [
     { label: '探索・彩色', problemIds: ['graph_001', 'graph_002', 'graph_003', 'graph_004', 'graph_013', 'graph_014'] },
     { label: '連結性・DAG', problemIds: ['graph_005', 'graph_007', 'graph_015'] },
     { label: '最小全域木', problemIds: ['graph_006', 'graph_008', 'graph_009'] },
-    { label: '最短路・木の構造', problemIds: ['graph_010', 'graph_011', 'graph_012'] },
+    { label: '最短路・木の構造', problemIds: ['graph_010', 'graph_011', 'graph_012', 'graph_016'] },
   ],
   dijkstra: [
     { label: '最短路アルゴリズム', problemIds: ['dijkstra_001', 'dijkstra_002', 'dijkstra_003'] },
