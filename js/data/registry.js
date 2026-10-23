@@ -48,7 +48,7 @@ const CATEGORY_SECTIONS = {
   ],
   competitive: [
     { label: '基本テクニック・数列', problemIds: ['cp_001', 'cp_002', 'cp_003', 'cp_010', 'cp_013', 'cp_014', 'cp_015', 'cp_016', 'cp_018', 'cp_029', 'cp_033', 'cp_036', 'cp_043'] },
-    { label: 'データ構造・クエリ', problemIds: ['cp_004', 'cp_005', 'cp_006', 'cp_007', 'cp_008', 'cp_009', 'cp_011', 'cp_012', 'cp_030', 'cp_039', 'cp_040'] },
+    { label: 'データ構造・クエリ', problemIds: ['cp_004', 'cp_005', 'cp_006', 'cp_007', 'cp_008', 'cp_009', 'cp_011', 'cp_012', 'cp_030', 'cp_039', 'cp_040', 'cp_044'] },
     { label: 'DP・組合せ・構築', problemIds: ['cp_017', 'cp_021', 'cp_022', 'cp_031', 'cp_035', 'cp_037', 'cp_041'] },
     { label: '数論・文字列', problemIds: ['cp_023', 'cp_024', 'cp_025'] },
     { label: 'グラフ・最適化', problemIds: ['cp_019', 'cp_020', 'cp_028', 'cp_032', 'cp_038'] },
