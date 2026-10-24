@@ -52,7 +52,7 @@ const CATEGORY_SECTIONS = {
     { label: 'DP・組合せ・構築', problemIds: ['cp_017', 'cp_021', 'cp_022', 'cp_031', 'cp_035', 'cp_037', 'cp_041'] },
     { label: '数論・文字列', problemIds: ['cp_023', 'cp_024', 'cp_025'] },
     { label: 'グラフ・最適化', problemIds: ['cp_019', 'cp_020', 'cp_028', 'cp_032', 'cp_038'] },
-    { label: '幾何・高速化', problemIds: ['cp_026', 'cp_027', 'cp_034', 'cp_042'] },
+    { label: '幾何・高速化', problemIds: ['cp_026', 'cp_027', 'cp_034', 'cp_042', 'cp_045'] },
   ],
   heuristic: [
     { label: '初期解の構築', problemIds: ['heuristic_001', 'heuristic_003'] },
