@@ -1,0 +1,82 @@
+// cp_048: 共通比率への最小補正 ★4 (C++)
+// 比率 B_i/A_i の重み付き中央値を選び、L1補正の最小値を既約分数で返す
+(window.PROBLEMS_REGISTRY = window.PROBLEMS_REGISTRY || []).push({
+  id: 'cp_048',
+  title: '共通比率への最小補正',
+  category: 'competitive',
+  categoryLabel: '競技プログラミング',
+  difficulty: 4,
+  language: 'cpp',
+  description: '【問題】\nN 個の点 (A_i, B_i) が与えられます。正の有理数 r を1つ選び、各 i について A_i r が B_i になるように、B_i だけを d_i だけ補正します。つまり、B_i + d_i = A_i r とします。\n\nΣ|d_i| が最小になるような r を選んだときの最小値を、分子が非負・分母が正の既約分数 p/q として返してください。\n\n固定した r に対する補正量は |A_i r-B_i| です。これは比率 B_i/A_i からの距離に重み A_i を付けたものなので、最小値は比率の重み付き中央値で達成できます。',
+  inputFormat: {
+    params: [
+      { name: 'points', type: 'const vector<RatioPoint>&', desc: 'RatioPoint { long long a, b; } の列' },
+    ],
+    note: '戻り値: pair<long long,long long>（最小値 p/q の {p, q}）\n制約: 2 ≤ N ≤ 2×10^5、1 ≤ a_i,b_i ≤ 10^6。',
+    examples: [
+      {
+        input: 'points = {{2, 3}, {2, 5}, {1, 10}}',
+        output: '{19, 2}',
+        explanation: '比率は3/2（重み2）、5/2（重み2）、10（重み1）です。重み付き中央値の r=5/2 を選ぶと補正量の総和は 2+0+15/2=19/2 です。',
+      },
+      {
+        input: 'points = {{1, 4}, {3, 4}}',
+        output: '{8, 3}',
+        explanation: '比率4と4/3の重みはそれぞれ1と3なので、r=4/3 が重み付き中央値です。最小値は |4/3-4|=8/3 です。',
+      },
+    ],
+  },
+  pinnedCode: [
+    '#include <bits/stdc++.h>',
+    'using namespace std;',
+    'struct RatioPoint { long long a, b; };',
+  ],
+  blocks: [
+    { id: 0, code: 'pair<long long, long long> minimumRatioCorrection(const vector<RatioPoint>& points) {' },
+    { id: 1, code: '    vector<RatioPoint> sorted = points;' },
+    { id: 2, code: '    sort(sorted.begin(), sorted.end(), [](const RatioPoint& lhs, const RatioPoint& rhs) {' },
+    { id: 3, code: '        return lhs.b * rhs.a < rhs.b * lhs.a;' },
+    { id: 4, code: '    });' },
+    { id: 5, code: '    long long totalWeight = 0;' },
+    { id: 6, code: '    for (const auto& point : sorted) totalWeight += point.a;' },
+    { id: 7, code: '    long long accumulated = 0;' },
+    { id: 8, code: '    RatioPoint median = sorted.back();' },
+    { id: 9, code: '    for (const auto& point : sorted) {' },
+    { id: 10, code: '        accumulated += point.a;' },
+    { id: 11, code: '        if (2 * accumulated >= totalWeight) {' },
+    { id: 12, code: '            median = point;' },
+    { id: 13, code: '            break;' },
+    { id: 14, code: '        }' },
+    { id: 15, code: '    }' },
+    { id: 16, code: '    long long numerator = 0;' },
+    { id: 17, code: '    for (const auto& point : points) {' },
+    { id: 18, code: '        numerator += llabs(point.a * median.b - point.b * median.a);' },
+    { id: 19, code: '    }' },
+    { id: 20, code: '    long long divisor = gcd(numerator, median.a);' },
+    { id: 21, code: '    return {numerator / divisor, median.a / divisor};' },
+    { id: 22, code: '}' },
+  ],
+  partialOrder: [
+    [0, 1], [0, 5], [0, 16], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6],
+    [6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 13], [13, 14],
+    [14, 15], [15, 16], [16, 17], [17, 18], [18, 19], [19, 20], [20, 21], [21, 22],
+  ],
+  hints: [
+    'F(r)=Σ|A_i r-B_i| と置き、|A_i r-B_i|=A_i|r-B_i/A_i| と変形します',
+    '比率 B_i/A_i を昇順に並べ、比率ごとの重みを A_i と考えます',
+    '重み付き絶対値和は、左右の重みがそれぞれ全重みの半分以下になる点、つまり重み付き中央値で最小になります',
+    '比率を浮動小数点数にせず、b1*a2 と b2*a1 の大小を交差乗算で比較します',
+    '中央値を b/a として固定すれば、全補正量の分子は Σ|A_i b-B_i a| で計算できます',
+  ],
+  explanation: {
+    summary: '各点を傾き r の直線 y=rx へ縦方向に移すときのL1補正を考えます。比率 B_i/A_i からの距離に A_i が重みとして付くため、一次元の重み付き中央値問題になります。',
+    points: [
+      '補正量の総和は F(r)=Σ|A_i r-B_i|=ΣA_i|r-B_i/A_i| です',
+      'r より左側の重みが大きいと r を左へ動かした方が改善し、右側の重みが大きいと右へ動かした方が改善します',
+      '両側の重みが半分以下になる比率が最小点であり、入力比率のいずれかを選べます',
+      '分子・分母を最後に gcd で割ることで既約分数にします',
+    ],
+    complexity: { time: 'O(N log N)', space: 'O(N)' },
+    tip: '絶対値の和を最小化する変数が現れたら中央値を、係数付きの絶対値の和なら重み付き中央値を疑いましょう。分数の比較は交差乗算で正確に行えます。',
+  },
+});

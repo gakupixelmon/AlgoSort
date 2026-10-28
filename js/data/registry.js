@@ -52,6 +52,7 @@ const CATEGORY_SECTIONS = {
     { label: 'DP・組合せ・構築', problemIds: ['cp_017', 'cp_021', 'cp_022', 'cp_031', 'cp_035', 'cp_037', 'cp_041'] },
     { label: '数論・文字列', problemIds: ['cp_023', 'cp_024', 'cp_025'] },
     { label: '確率・期待値', problemIds: ['cp_047'] },
+    { label: '数学・最適化', problemIds: ['cp_048'] },
     { label: 'グラフ・最適化', problemIds: ['cp_019', 'cp_020', 'cp_028', 'cp_032', 'cp_038', 'cp_046'] },
     { label: '幾何・高速化', problemIds: ['cp_026', 'cp_027', 'cp_034', 'cp_042', 'cp_045'] },
   ],
