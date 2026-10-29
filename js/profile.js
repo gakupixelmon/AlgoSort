@@ -8,6 +8,24 @@
 const ProfileManager = (() => {
   const MONTH_NAMES = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function safeAvatarUrl(value) {
+    try {
+      const url = new URL(String(value ?? ''));
+      return url.protocol === 'https:' ? url.href : '';
+    } catch (_e) {
+      return '';
+    }
+  }
+
   function difficultyStars(difficulty) {
     return '★'.repeat(difficulty) + '☆'.repeat(Math.max(0, 5 - difficulty));
   }
@@ -72,11 +90,12 @@ const ProfileManager = (() => {
   }
 
   function _renderError(screen, msg) {
+    const safePath = escapeHtml(window.location.pathname);
     screen.innerHTML = `
       <div class="profile-error">
         <div class="profile-error-icon">😕</div>
-        <p class="profile-error-msg">${msg.replace(/\n/g, '<br>')}</p>
-        <a href="${window.location.pathname}" class="btn btn-secondary"
+        <p class="profile-error-msg">${escapeHtml(msg).replace(/\n/g, '<br>')}</p>
+        <a href="${safePath}" class="btn btn-secondary"
            style="display:inline-flex;width:auto;margin-top:20px;">← ホームへ</a>
       </div>`;
   }
@@ -92,32 +111,43 @@ const ProfileManager = (() => {
       dailyActivity  = {},
     } = profile;
 
-    const weeks           = _buildHeatmap(dailyActivity);
-    const activeDays      = Object.values(dailyActivity).filter((v) => v > 0).length;
+    const safeActivity    = dailyActivity && typeof dailyActivity === 'object' && !Array.isArray(dailyActivity)
+      ? dailyActivity
+      : {};
+    const safePath        = escapeHtml(window.location.pathname);
+    const weeks           = _buildHeatmap(safeActivity);
+    const activeDays      = Object.values(safeActivity).filter((v) => Number(v) > 0).length;
     const clearedProblems = window.DataManager
-      ? clearedIds.map((id) => DataManager.getProblemById(id)).filter(Boolean)
+      ? (Array.isArray(clearedIds) ? clearedIds : [])
+        .map((id) => DataManager.getProblemById(id)).filter(Boolean)
       : [];
-    const profileUrl = `${window.location.origin}${window.location.pathname}?user=${(githubLogin || '').toLowerCase()}`;
+    const profileUrl = `${window.location.origin}${window.location.pathname}?user=${encodeURIComponent((githubLogin || '').toLowerCase())}`;
+    const safeLogin = escapeHtml(githubLogin);
+    const safeDisplayName = escapeHtml(displayName);
+    const safeAvatar = escapeHtml(safeAvatarUrl(avatarUrl));
+    const safeTotalClears = Number.isFinite(Number(totalClears))
+      ? String(Math.max(0, Math.floor(Number(totalClears))))
+      : '0';
 
     screen.innerHTML = `
       <div class="profile-container">
 
         <!-- ヘッダー -->
         <div class="profile-page-header">
-          <a href="${window.location.pathname}" class="profile-back-link">← AlgoSort</a>
+          <a href="${safePath}" class="profile-back-link">← AlgoSort</a>
           <button class="profile-share-btn" id="profile-share-btn">🔗 URLをコピー</button>
         </div>
 
         <!-- ユーザーカード -->
         <div class="profile-user-card">
-          ${avatarUrl
-            ? `<img class="profile-avatar" src="${avatarUrl}" alt="${githubLogin}" />`
+          ${safeAvatar
+            ? `<img class="profile-avatar" src="${safeAvatar}" alt="${safeLogin}" />`
             : `<div class="profile-avatar-placeholder">👤</div>`}
           <div class="profile-user-info">
-            <div class="profile-username">${githubLogin || displayName || 'AlgoSort User'}</div>
+            <div class="profile-username">${safeLogin || safeDisplayName || 'AlgoSort User'}</div>
             <div class="profile-user-sub">AlgoSort プレイヤー</div>
             <div class="profile-user-badges">
-              <span class="profile-badge">📝 ${totalClears}問クリア</span>
+              <span class="profile-badge">📝 ${safeTotalClears}問クリア</span>
               <span class="profile-badge">📅 ${activeDays}日アクティブ</span>
             </div>
           </div>
@@ -145,8 +175,8 @@ const ProfileManager = (() => {
                   <div class="profile-cleared-item">
                     <span class="profile-cleared-check">✓</span>
                     <div class="profile-cleared-body">
-                      <span class="profile-cleared-title">${p.title}</span>
-                      <span class="profile-cleared-meta">${p.categoryLabel} ・ ${difficultyStars(p.difficulty)}</span>
+                      <span class="profile-cleared-title">${escapeHtml(p.title)}</span>
+                      <span class="profile-cleared-meta">${escapeHtml(p.categoryLabel)} ・ ${difficultyStars(p.difficulty)}</span>
                     </div>
                   </div>`).join('')}
               </div>`
@@ -227,8 +257,10 @@ const ProfileManager = (() => {
     const cols = weeks.map((week) => {
       const cells = week.map((day) => {
         if (day.count < 0) return '<div class="heatmap-cell empty"></div>';
-        const lv = day.count === 0 ? 0 : day.count === 1 ? 1 : day.count === 2 ? 2 : day.count <= 4 ? 3 : 4;
-        return `<div class="heatmap-cell level-${lv}" title="${day.date}: ${day.count}問クリア"></div>`;
+        const count = Number(day.count);
+        const safeCount = Number.isFinite(count) ? Math.max(0, Math.floor(count)) : 0;
+        const lv = safeCount === 0 ? 0 : safeCount === 1 ? 1 : safeCount === 2 ? 2 : safeCount <= 4 ? 3 : 4;
+        return `<div class="heatmap-cell level-${lv}" title="${day.date}: ${safeCount}問クリア"></div>`;
       }).join('');
       return `<div class="heatmap-col">${cells}</div>`;
     }).join('');
@@ -251,7 +283,7 @@ const ProfileManager = (() => {
     const container = document.getElementById('profile-link-container');
     if (!container || !githubLogin) return;
 
-    const url = `${window.location.origin}${window.location.pathname}?user=${githubLogin.toLowerCase()}`;
+    const url = `${window.location.origin}${window.location.pathname}?user=${encodeURIComponent(githubLogin.toLowerCase())}`;
 
     container.innerHTML = `
       <button class="profile-link-home-btn" id="copy-profile-btn">
